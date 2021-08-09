@@ -6,3 +6,8 @@ for (let i = 1; i <= 50; i++) {
   fieldSquare.dataset.position = i
   field.appendChild(fieldSquare)
 }
+for (let i = 1; i <= fieldSquares.length; i++) {
+  fieldSquares[i - 1].addEventListener('click', function (event) {
+    console.log(`Position: ${event.target.dataset.position}`)
+  })
+}
