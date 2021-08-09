@@ -51,10 +51,18 @@ li {
   border-radius: 50%;
   background-color: orange;
 }
-
+.game-piece:hover {
+  background-color: darkorange;
+}
 #team1 {
   border-color: red;
 }
+#team1:hover {
+  border-color: darkred;
+}
 #team2 {
   border-color: blue;
+}
+#team2:hover {
+  border-color: darkblue;
 }

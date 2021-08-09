@@ -21,8 +21,24 @@ let player2StartingPositions = [
 /// Body Parts ///
 let field = document.querySelector('#field')
 let fieldSquares = field.children
-console.log(fieldSquares)
 /// Functions ///
+// Creates all 450 unique game squares
+const toggleTurn = () => {
+  if (isPlayer1Turn) {
+    isPlayer1Turn = false
+    isPlayer2Turn = true
+    console.log(isPlayer1Turn)
+    console.log(isPlayer2Turn)
+    setGamePieceEventListeners()
+  } else {
+    isPlayer1Turn = true
+    isPlayer2Turn = false
+    console.log(isPlayer1Turn)
+    console.log(isPlayer2Turn)
+    setGamePieceEventListeners()
+  }
+}
+
 const createField = () => {
   const field = document.querySelector('#field')
   const fieldSquares = field.children
@@ -47,6 +63,7 @@ const createField = () => {
     })
   }
 }
+// Populates board with game pieces
 const boardSetup = () => {
   /// setup for team 1
   for (let i = 0; i < 11; i++) {
@@ -63,10 +80,47 @@ const boardSetup = () => {
     fieldSquares[player2StartingPositions[i] - 1].appendChild(gamePiece)
   }
 }
-const startGame = () => {
-  createField()
-  console.log
-  boardSetup()
+// Resets player locations to starting locations
+const resetOccupiedCells = () => {
+  player1OccupiedCells = player1StartingPositions
+  player2OccupiedCells = player2StartingPositions
 }
+const gamePieceClicked = (event) => {
+  if (isPlayer1Turn) {
+    for (let i = 0; i < 11; i++) {
+      const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
+      gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
+    }
+    console.log(event)
+    toggleTurn()
+  } else {
+    for (let i = 0; i < 11; i++) {
+      const gamePiece = fieldSquares[player2OccupiedCells[i] - 1]
+      gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
+    }
+    console.log(event)
+    toggleTurn()
+  }
+}
+const setGamePieceEventListeners = () => {
+  if (isPlayer1Turn) {
+    for (let i = 0; i < 11; i++) {
+      const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
+      gamePiece.firstChild.addEventListener('click', gamePieceClicked)
+    }
+  } else {
+    for (let i = 0; i < 11; i++) {
+      const gamePiece = fieldSquares[player2OccupiedCells[i] - 1]
+      gamePiece.firstChild.addEventListener('click', gamePieceClicked)
+    }
+  }
+}
+const startGame = () => {
+  resetOccupiedCells()
+  createField()
+  boardSetup()
+  setGamePieceEventListeners()
+}
+// Starts game on reload
 startGame()
 /// Event Listeners ///
