@@ -11,8 +11,8 @@ li {
 }
 #field-container {
   display: grid;
-  grid-template-columns: 1fr 10fr 1fr;
-  grid-template-rows: 5fr;
+  grid-template-columns: 3fr 30fr 3fr;
+  grid-template-rows: 15fr;
   height: 70%;
   border: 3px solid purple;
 }
@@ -27,26 +27,27 @@ li {
 #field {
   grid-area: 1 / 2 / span 1 / span 1;
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: repeat(30, 1fr);
+  grid-template-rows: repeat(15, 1fr);
   background-color: gray;
 }
 .field-square {
   display: flex;
   justify-content: center;
+  z-index: 4;
   align-items: center;
-  /* width: 100%; */
   background-color: green;
   border: 1px solid black;
 }
-.game-piece-container {
+.game-piece {
   display: flex;
   height: inherit;
   justify-content: center;
   align-items: center;
-  width: 50%;
-  height: 50%;
-  border: 1vmin solid yellow;
-  border-radius: 40%;
+  z-index: 5;
+  width: 40%;
+  height: 40%;
+  border: 0.51vmin solid yellow;
+  border-radius: 50%;
   background-color: aqua;
 }
