@@ -32,7 +32,21 @@ li {
   background-color: gray;
 }
 .field-square {
-  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* width: 100%; */
   background-color: green;
   border: 1px solid black;
+}
+.game-piece-container {
+  display: flex;
+  height: inherit;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 50%;
+  border: 1vmin solid yellow;
+  border-radius: 40%;
+  background-color: aqua;
 }

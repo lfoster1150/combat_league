@@ -9,5 +9,9 @@ for (let i = 1; i <= 50; i++) {
 for (let i = 1; i <= fieldSquares.length; i++) {
   fieldSquares[i - 1].addEventListener('click', function (event) {
     console.log(`Position: ${event.target.dataset.position}`)
+    console.log(event.target)
+    const gamePiece = document.createElement('div')
+    gamePiece.classList.add('game-piece-container')
+    event.target.appendChild(gamePiece)
   })
 }
