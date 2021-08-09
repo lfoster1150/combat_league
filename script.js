@@ -21,24 +21,24 @@ let player2StartingPositions = [
 /// Body Parts ///
 let field = document.querySelector('#field')
 let fieldSquares = field.children
+const instructions = document.querySelector('#instructions')
+const endTurnButton = document.querySelector('#end-turn-button')
+const rollButton = document.querySelector('#roll-button')
+const rollAmount = document.querySelector('#roll-amount')
 /// Functions ///
-// Creates all 450 unique game squares
+// Toggles  turn depending on who's currently in control.
 const toggleTurn = () => {
   if (isPlayer1Turn) {
     isPlayer1Turn = false
     isPlayer2Turn = true
-    console.log(isPlayer1Turn)
-    console.log(isPlayer2Turn)
     setGamePieceEventListeners()
   } else {
     isPlayer1Turn = true
     isPlayer2Turn = false
-    console.log(isPlayer1Turn)
-    console.log(isPlayer2Turn)
     setGamePieceEventListeners()
   }
 }
-
+// Creates all 450 unique game squares
 const createField = () => {
   const field = document.querySelector('#field')
   const fieldSquares = field.children
@@ -85,21 +85,41 @@ const resetOccupiedCells = () => {
   player1OccupiedCells = player1StartingPositions
   player2OccupiedCells = player2StartingPositions
 }
+// Takes in a dice size and returns a random number between 1 and the dice size
+const roll = (diceSize) => {
+  return Math.ceil(Math.random() * diceSize)
+}
+// Needed to handle roll after player selects piece to move
+const handleRoll = () => {
+  instructions.innerText = 'Please press the roll button to roll your D20...'
+  rollButton.addEventListener('click', () => {
+    let rollNum = roll(20)
+    instructions.innerText = `You rolled a ${rollNum}!`
+    rollAmount.innerText = rollNum
+    return rollNum
+  })
+}
+// Logic needed to move piece
+const movePieceStart = (gamePiece) => {
+  const currentRoll = handleRoll()
+  const squareLocation = gamePiece.parentNode.dataset.position
+  console.log(gamePiece.parentNode)
+  let movesLeft = currentRoll
+}
 const gamePieceClicked = (event) => {
+  const eventTarget = event.target
   if (isPlayer1Turn) {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
       gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
     }
-    console.log(event)
-    toggleTurn()
+    movePieceStart(eventTarget)
   } else {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player2OccupiedCells[i] - 1]
       gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
     }
-    console.log(event)
-    toggleTurn()
+    movePieceStart(eventTarget)
   }
 }
 const setGamePieceEventListeners = () => {
@@ -124,3 +144,5 @@ const startGame = () => {
 // Starts game on reload
 startGame()
 /// Event Listeners ///
+endTurnButton.addEventListener('click', toggleTurn)
+// rollButton.addEventListener('click', roll)

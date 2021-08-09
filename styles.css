@@ -1,13 +1,59 @@
 body {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
   height: 100vh;
   margin: 0;
   background-color: black;
+}
+nav {
+  display: flex;
+  align-items: center;
+  height: 3%;
 }
 ul {
   display: flex;
 }
 li {
   margin: 0 30px;
+}
+#score-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 15%;
+  background-color: gray;
+}
+#instructions-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-area: 1 / 2 / span 1 / span 1;
+  height: 90%;
+  background-color: black;
+  color: white;
+}
+#buttons-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  grid-area: 2 / 2 / span 1 / span 1;
+}
+#roll-button {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 15%;
+  padding: 0 10px;
+}
+#roll-amount {
+  background-color: black;
+  color: red;
+  padding: 5px 10px;
+  margin: 5px 10px;
 }
 #field-container {
   display: grid;
@@ -34,8 +80,8 @@ li {
 .field-square {
   display: flex;
   justify-content: center;
-  z-index: 4;
   align-items: center;
+  z-index: 4;
   background-color: green;
   border: 1px solid black;
 }
