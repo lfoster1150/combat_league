@@ -45,9 +45,16 @@ li {
   justify-content: center;
   align-items: center;
   z-index: 5;
-  width: 40%;
-  height: 40%;
-  border: 0.51vmin solid yellow;
+  width: 30%;
+  height: 30%;
+  border: 0.75vmin solid yellow;
   border-radius: 50%;
-  background-color: aqua;
+  background-color: orange;
+}
+
+#team1 {
+  border-color: red;
+}
+#team2 {
+  border-color: blue;
 }
