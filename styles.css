@@ -106,15 +106,25 @@ li {
 .game-piece:hover {
   background-color: darkorange;
 }
-#team1 {
+.team1 {
   border-color: red;
 }
-#team1:hover {
+.team1:hover {
   border-color: darkred;
 }
-#team2 {
+.team2 {
   border-color: blue;
 }
-#team2:hover {
+.team2:hover {
   border-color: darkblue;
+}
+.debris {
+  display: flex;
+  height: inherit;
+  justify-content: center;
+  align-items: center;
+  height: 95%;
+  width: 95%;
+  z-index: 5;
+  background-color: rgb(89, 27, 27);
 }

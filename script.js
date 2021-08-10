@@ -28,6 +28,7 @@ let currentMovesLeft = 0
 let moveRadiusToBeRemoved = []
 let squareMovedFrom = 0
 let squareMovedTo = 0
+let tilesWithDebris = []
 // Global variables used in tackling functions
 let hasPlayer1Rolled = false
 let hasPlayer2Rolled = false
@@ -144,11 +145,11 @@ const createField = () => {
   /// Used only for console logging
   for (let i = 1; i <= fieldSquares.length; i++) {
     fieldSquares[i - 1].addEventListener('click', function (event) {
-      console.log(
-        `Position: ${event.target.dataset.position}`,
-        `Row: ${event.target.dataset.row}`,
-        `Column: ${event.target.dataset.column}`
-      )
+      //   console.log(
+      //     `Position: ${event.target.dataset.position}`,
+      //     `Row: ${event.target.dataset.row}`,
+      //     `Column: ${event.target.dataset.column}`
+      //   )
     })
   }
 }
@@ -158,14 +159,14 @@ const boardSetup = () => {
   for (let i = 0; i < 11; i++) {
     const gamePiece = document.createElement('div')
     gamePiece.classList.add('game-piece')
-    gamePiece.id = 'team1'
+    gamePiece.classList.add('team1')
     fieldSquares[player1StartingPositions[i] - 1].appendChild(gamePiece)
   }
   /// setup for team 2
   for (let i = 0; i < 11; i++) {
     const gamePiece = document.createElement('div')
     gamePiece.classList.add('game-piece')
-    gamePiece.id = 'team2'
+    gamePiece.classList.add('team2')
     fieldSquares[player2StartingPositions[i] - 1].appendChild(gamePiece)
   }
 }
@@ -222,12 +223,65 @@ const checkForTackle = (position) => {
     }, -1)
   }
 }
-const attachDebris = (tile) => {}
+const attachDebris = (tile) => {
+  const tileAsNumber = parseFloat(tile)
+  console.log(tileAsNumber)
+  let gamePieceTile = fieldSquares[tileAsNumber - 1]
+  const firstChild = gamePieceTile.firstChild
+  firstChild.remove()
+  const debris = document.createElement('div')
+  debris.classList.add('debris')
+  gamePieceTile.appendChild(debris)
+  tilesWithDebris.push(tileAsNumber)
+  player1OccupiedCells = player1OccupiedCells.filter(
+    (num) => num != tileAsNumber
+  )
+  player2OccupiedCells = player2OccupiedCells.filter(
+    (num) => num != tileAsNumber
+  )
+  // console.log(player1OccupiedCells)
+  // console.log(player2OccupiedCells)
+}
+// Handles a draw or if controlling player is destroyed
+const handleAftermath = () => {
+  instructions.innerText = `The controlling player was destroyed. Press [End Turn] button to end turn...`
+  endTurnButton.addEventListener('click', () => {
+    removeEventListenersAndResetColor(moveRadiusToBeRemoved)
+    updatePositions()
+  })
+}
+// Handles results of tackle, and sends either to handleMove if the player is still in charge, or to handleAftermath if not
 const tackleResult = (player1Rolled, player2Rolled) => {
-  if (player1Rolled === player2Rolled) {
-    instructions.innerText = `There was a massive collision. Both players were injured in the process.`
-    attachDebris(tackledGamePieceLocation)
-    attachDebris(tacklerLocation)
+  if (isPlayer1Turn) {
+    if (player1Rolled === player2Rolled) {
+      instructions.innerText = `There was a massive collision. Both players were injured in the process.`
+      attachDebris(tackledGamePieceLocation)
+      attachDebris(tacklerLocation)
+      handleAftermath()
+    } else if (player1Rolled > player2Rolled) {
+      instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
+      attachDebris(tacklerLocation)
+      handleMove()
+    } else {
+      instructions.innerText = `Player 2 got the best of player 2. That tile is now cluttered with debris.`
+      attachDebris(tackledGamePieceLocation)
+      handleAftermath()
+    }
+  } else {
+    if (player1Rolled === player2Rolled) {
+      instructions.innerText = `There was a massive collision. Both players were injured in the process.`
+      attachDebris(tackledGamePieceLocation)
+      attachDebris(tacklerLocation)
+      handleAftermath()
+    } else if (player1Rolled > player2Rolled) {
+      instructions.innerText = `Player 1 got the best of player 1. That tile is now cluttered with debris.`
+      attachDebris(tackledGamePieceLocation)
+      handleAftermath()
+    } else {
+      instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
+      attachDebris(tacklerLocation)
+      handleMove()
+    }
   }
 }
 const tackleRoll1 = () => {
@@ -280,7 +334,6 @@ const movePiece = (event) => {
   squareMovedTo = parseFloat(event.target.dataset.position)
   let tackleLocation = checkForTackle(squareMovedTo)
   tackleLocation = parseFloat(tackleLocation)
-  console.log(parseFloat(checkForTackle(squareMovedTo)))
   if (tackleLocation >= 0) {
     handleTackle(currentGamePiece, tackleLocation)
   } else {
@@ -357,12 +410,12 @@ const gamePieceClicked = (event) => {
 const setGamePieceEventListeners = () => {
   instructions.innerText = `It's ${currentTeam()}'s turn.! Pick a ${currentColor()} game piece to start move...`
   if (isPlayer1Turn) {
-    for (let i = 0; i < 11; i++) {
+    for (let i = 0; i < player1OccupiedCells.length; i++) {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
       gamePiece.firstChild.addEventListener('click', gamePieceClicked)
     }
   } else {
-    for (let i = 0; i < 11; i++) {
+    for (let i = 0; i < player2OccupiedCells.length; i++) {
       const gamePiece = fieldSquares[player2OccupiedCells[i] - 1]
       gamePiece.firstChild.addEventListener('click', gamePieceClicked)
     }
