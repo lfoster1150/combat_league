@@ -15,9 +15,7 @@ let hasPlayerRolled = false
 let endTurn = false
 let previousRadius = []
 let player1OccupiedCells = []
-// let player1TackleZone = ​[] /// giving an error for some reason. Will need to re-visit
 let player2OccupiedCells = []
-// let player2TackleZone ​= [] /// giving an error for some reason. Will need to re-visit
 let currentTurnMovesRemaining = 0 // Will probably need to move inside a function ( counts down after every movement) //
 let player2StartingPositions = [
   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
@@ -25,6 +23,8 @@ let player2StartingPositions = [
 let player1StartingPositions = [
   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
 ]
+let tackleRadiusTeam1 = []
+let tackleRadiusTeam2 = []
 let currentGamePiece = undefined
 let currentMovesLeft = 0
 let moveRadiusToBeRemoved = []
@@ -57,13 +57,44 @@ const currentColor = () => {
     return team2Color
   }
 }
+const tackleRadiusOfPosition = (position) => {
+  return [
+    position - 31,
+    position - 30,
+    position - 29,
+    position - 1,
+    position + 1,
+    position + 29,
+    position + 30,
+    position + 31
+  ]
+}
+// Sets up TR for both teams at beginning of game
+const initializeTackleRadius = () => {
+  tackleRadiusTeam1 = player1OccupiedCells.map((position) => {
+    return tackleRadiusOfPosition(position)
+  })
+  tackleRadiusTeam2 = player2OccupiedCells.map((position) => {
+    return tackleRadiusOfPosition(position)
+  })
+}
+// Updates tackle radius of team that just ended turn based on updatePositions()
+const updateTackleRadius = () => {
+  if (isPlayer1Turn) {
+    tackleRadiusTeam1 = player1OccupiedCells.map((position) => {
+      return tackleRadiusOfPosition(position)
+    })
+  } else {
+    tackleRadiusTeam2 = player2OccupiedCells.map((position) => {
+      return tackleRadiusOfPosition(position)
+    })
+  }
+}
 // Updates current positions array for team
 const updatePositions = () => {
-  console.log(player1OccupiedCells)
   parsedSquareMovedFrom = parseFloat(squareMovedFrom)
   if (isPlayer1Turn) {
     player1OccupiedCells = player1OccupiedCells.map((position) => {
-      console.log(Number.isInteger(position))
       if (position === parsedSquareMovedFrom) {
         return squareMovedTo
       } else {
@@ -79,6 +110,7 @@ const updatePositions = () => {
       }
     })
   }
+  updateTackleRadius()
   toggleTurn()
 }
 // Toggles  turn depending on who's currently in control.
@@ -144,7 +176,7 @@ const roll = (diceSize) => {
   return Math.ceil(Math.random() * diceSize)
 }
 const movementRoll = () => {
-  currentRoll = roll(3)
+  currentRoll = roll(20)
   instructions.innerText = `You rolled a ${currentRoll}!`
   if (isPlayer1Turn) {
     rollButton1.addEventListener('click', movementRoll)
@@ -165,17 +197,43 @@ const handleMovementRoll = () => {
     rollButton2.addEventListener('click', movementRoll)
   }
 }
+// Checks for current piece moving into tackle radius of opponent
+const checkForTackle = (position) => {
+  if (isPlayer1Turn) {
+    return tackleRadiusTeam2.reduce((acc, arr) => {
+      if (arr.indexOf(position) >= 0) {
+        acc = arr.indexOf(position)
+        return acc
+      } else {
+        return acc
+      }
+    }, -1)
+  } else {
+    return tackleRadiusTeam1.reduce((acc, arr) => {
+      if (arr.indexOf(position) >= 0) {
+        acc = arr.indexOf(position)
+        return acc
+      } else {
+        return acc
+      }
+    }, -1)
+  }
+}
 // Actually removes the piece
 const movePiece = (event) => {
   removeEventListenersAndResetColor(moveRadiusToBeRemoved)
   event.target.appendChild(currentGamePiece)
   currentMovesLeft -= 1
   squareMovedTo = parseFloat(event.target.dataset.position)
-  console.log(squareMovedTo)
-  if (currentMovesLeft >= 0) {
-    handleMove()
+  const tackleLocation = checkForTackle(squareMovedTo)
+  if (tackleLocation >= 0) {
+    handleTackle()
   } else {
-    updatePositions()
+    if (currentMovesLeft >= 0) {
+      handleMove()
+    } else {
+      updatePositions()
+    }
   }
 }
 // Removes event listeners and resets colors current movement radius
@@ -189,7 +247,6 @@ const removeEventListenersAndResetColor = (arr) => {
 // Handles movement after roll is made
 const handleMove = () => {
   let fieldSquare = currentGamePiece.parentNode
-  console.log(fieldSquare)
   let squareLocation = fieldSquare.dataset.position
   if (currentMovesLeft === 0) {
     instructions.innerText = `You have ${currentMovesLeft} moves left. Press [End Turn] button to end turn...`
@@ -261,6 +318,7 @@ const startGame = () => {
   createField()
   boardSetup()
   setGamePieceEventListeners()
+  initializeTackleRadius()
 }
 // Starts game on reload
 startGame()
