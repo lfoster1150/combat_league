@@ -96,11 +96,13 @@ const updateTackleRadius = () => {
 }
 // Updates current positions array for team
 const updatePositions = () => {
-  parsedSquareMovedFrom = parseFloat(squareMovedFrom)
+  const parsedSquareMovedFrom = parseFloat(squareMovedFrom)
+  const parsedSquareMovedTo = parseFloat(squareMovedTo)
+  // console.log(squareMovedFrom)
   if (isPlayer1Turn) {
     player1OccupiedCells = player1OccupiedCells.map((position) => {
       if (position === parsedSquareMovedFrom) {
-        return squareMovedTo
+        return parsedSquareMovedTo
       } else {
         return position
       }
@@ -108,14 +110,13 @@ const updatePositions = () => {
   } else {
     player2OccupiedCells = player2OccupiedCells.map((position) => {
       if (position === parsedSquareMovedFrom) {
-        return squareMovedTo
+        return parsedSquareMovedTo
       } else {
         return position
       }
     })
   }
   updateTackleRadius()
-  toggleTurn()
 }
 // Toggles  turn depending on who's currently in control.
 const toggleTurn = () => {
@@ -179,6 +180,7 @@ const resetOccupiedCells = () => {
 const roll = (diceSize) => {
   return Math.ceil(Math.random() * diceSize)
 }
+// Fires after roll button clicked for movement
 const movementRoll = () => {
   currentRoll = roll(20)
   instructions.innerText = `You rolled a ${currentRoll}!`
@@ -225,7 +227,6 @@ const checkForTackle = (position) => {
 }
 const attachDebris = (tile) => {
   const tileAsNumber = parseFloat(tile)
-  console.log(tileAsNumber)
   let gamePieceTile = fieldSquares[tileAsNumber - 1]
   const firstChild = gamePieceTile.firstChild
   firstChild.remove()
@@ -239,8 +240,6 @@ const attachDebris = (tile) => {
   player2OccupiedCells = player2OccupiedCells.filter(
     (num) => num != tileAsNumber
   )
-  // console.log(player1OccupiedCells)
-  // console.log(player2OccupiedCells)
 }
 // Handles a draw or if controlling player is destroyed
 const handleAftermath = () => {
@@ -248,6 +247,7 @@ const handleAftermath = () => {
   endTurnButton.addEventListener('click', () => {
     removeEventListenersAndResetColor(moveRadiusToBeRemoved)
     updatePositions()
+    toggleTurn()
   })
 }
 // Handles results of tackle, and sends either to handleMove if the player is still in charge, or to handleAftermath if not
@@ -328,6 +328,7 @@ const handleTackle = (gamePiece, arrPosition) => {
 }
 // Actually removes the piece
 const movePiece = (event) => {
+  updatePositions()
   removeEventListenersAndResetColor(moveRadiusToBeRemoved)
   event.target.appendChild(currentGamePiece)
   currentMovesLeft -= 1
@@ -341,32 +342,41 @@ const movePiece = (event) => {
       handleMove()
     } else {
       updatePositions()
+      toggleTurn()
     }
   }
 }
 // Removes event listeners and resets colors current movement radius
 const removeEventListenersAndResetColor = (arr) => {
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < arr.length; i++) {
     const cellToRemove = fieldSquares[arr[i] - 1]
-    cellToRemove.removeEventListener('click', movePiece)
-    cellToRemove.style.backgroundColor = 'green'
+    if (cellToRemove) {
+      cellToRemove.removeEventListener('click', movePiece)
+      cellToRemove.style.backgroundColor = 'green'
+    } else {
+      continue
+    }
   }
 }
 // Handles movement after roll is made
 const handleMove = () => {
   let fieldSquare = currentGamePiece.parentNode
   let squareLocation = fieldSquare.dataset.position
+  squareMovedFrom = squareLocation
+
   if (currentMovesLeft === 0) {
     instructions.innerText = `You have ${currentMovesLeft} moves left. Press [End Turn] button to end turn...`
     endTurnButton.addEventListener('click', () => {
       removeEventListenersAndResetColor(moveRadiusToBeRemoved)
       updatePositions()
+      toggleTurn()
     })
   } else {
     instructions.innerText = `You have ${currentMovesLeft} moves left. Make your move or press the [End Turn] button to end turn...`
     endTurnButton.addEventListener('click', () => {
       removeEventListenersAndResetColor(moveRadiusToBeRemoved)
       updatePositions()
+      toggleTurn()
     })
     let movesAvailableArray = [
       parseFloat(squareLocation) - 31,
@@ -379,11 +389,22 @@ const handleMove = () => {
       parseFloat(squareLocation) + 31
     ]
     movesAvailableArray = movesAvailableArray.map((num) => parseFloat(num))
+    movesAvailableArray = movesAvailableArray.filter((num) => {
+      const parsedNum = parseFloat(num)
+      const player1Check = player1OccupiedCells.indexOf(parsedNum) > 0
+      const player2Check = player2OccupiedCells.indexOf(parsedNum) > 0
+      const debrisCheck = tilesWithDebris.indexOf(parsedNum) > 0
+      return !(player1Check || player2Check || debrisCheck)
+    })
     moveRadiusToBeRemoved = movesAvailableArray
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < movesAvailableArray.length; i++) {
       const cellToHighlight = fieldSquares[movesAvailableArray[i] - 1]
-      cellToHighlight.style.backgroundColor = 'lightgreen'
-      cellToHighlight.addEventListener('click', movePiece)
+      if (cellToHighlight) {
+        cellToHighlight.style.backgroundColor = 'lightgreen'
+        cellToHighlight.addEventListener('click', movePiece)
+      } else {
+        continue
+      }
     }
   }
 }
@@ -392,7 +413,7 @@ const handleMove = () => {
 const gamePieceClicked = (event) => {
   const eventTarget = event.target
   currentGamePiece = eventTarget
-  squareMovedFrom = event.target.parentNode.dataset.position
+  // squareMovedFrom = event.target.parentNode.dataset.position
   if (isPlayer1Turn) {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
@@ -412,12 +433,20 @@ const setGamePieceEventListeners = () => {
   if (isPlayer1Turn) {
     for (let i = 0; i < player1OccupiedCells.length; i++) {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
-      gamePiece.firstChild.addEventListener('click', gamePieceClicked)
+      if (gamePiece.firstChild) {
+        gamePiece.firstChild.addEventListener('click', gamePieceClicked)
+      } else {
+        continue
+      }
     }
   } else {
     for (let i = 0; i < player2OccupiedCells.length; i++) {
       const gamePiece = fieldSquares[player2OccupiedCells[i] - 1]
-      gamePiece.firstChild.addEventListener('click', gamePieceClicked)
+      if (gamePiece.firstChild) {
+        gamePiece.firstChild.addEventListener('click', gamePieceClicked)
+      } else {
+        continue
+      }
     }
   }
 }
