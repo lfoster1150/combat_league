@@ -97,37 +97,35 @@ const roll = (diceSize) => {
   return Math.ceil(Math.random() * diceSize)
 }
 // Needed to handle roll after player selects piece to move
-const handleMovementRoll = (gamePiece) => {
+const handleMovementRoll = () => {
   instructions.innerText = 'Please press the roll button to roll your D20...'
   rollButton.addEventListener('click', () => {
     currentRoll = roll(20)
     instructions.innerText = `You rolled a ${currentRoll}!`
     rollAmount.innerText = currentRoll
-    handleMove(gamePiece, currentRoll)
+    currentMovesLeft = currentRoll
+    handleMove()
   })
 }
-const movePiece = (event, gamePiece, array, movesLeft) => {
-  removeEventListenersAndResetColor(array)
-  event.target.appendChild(gamePiece)
-  movesLeft -= 1
-  handleMove(gamePiece, movesLeft)
+const movePiece = (event) => {
+  removeEventListenersAndResetColor(moveRadiusToBeRemoved)
+  event.target.appendChild(currentGamePiece)
+  currentMovesLeft -= 1
+  handleMove()
 }
 // Removes event listeners and resets colors current movement radius
 const removeEventListenersAndResetColor = (arr) => {
   for (let i = 0; i < 8; i++) {
     const cellToRemove = fieldSquares[arr[i] - 1]
-    cellToRemove.removeEventListener('click', (event) => {
-      movePiece(event, gamePiece, movesAvailableArray, movesLeft)
-    })
+    cellToRemove.removeEventListener('click', movePiece)
     cellToRemove.style.backgroundColor = 'green'
   }
 }
 // Handles movement after roll is made
-const handleMove = (gamePiece, movesLeft) => {
-  let currentFieldSquare = gamePiece.parentNode
-  let squareLocation = currentFieldSquare.dataset.position
-
-  instructions.innerText = `You have ${movesLeft} moves left...`
+const handleMove = () => {
+  let fieldSquare = currentGamePiece.parentNode
+  let squareLocation = fieldSquare.dataset.position
+  instructions.innerText = `You have ${currentMovesLeft} moves left...`
   // endTurnButton.addEventListener('click', () => {
   //   return
   // })
@@ -142,29 +140,29 @@ const handleMove = (gamePiece, movesLeft) => {
     parseFloat(squareLocation) + 31
   ]
   movesAvailableArray = movesAvailableArray.map((num) => parseFloat(num))
+  moveRadiusToBeRemoved = movesAvailableArray
   for (let i = 0; i < 8; i++) {
     const cellToHighlight = fieldSquares[movesAvailableArray[i] - 1]
     cellToHighlight.style.backgroundColor = 'lightgreen'
-    cellToHighlight.addEventListener('click', (event) => {
-      movePiece(event, gamePiece, movesAvailableArray, movesLeft)
-    })
+    cellToHighlight.addEventListener('click', movePiece)
   }
 }
 // Run when a ggame piece is clicked, then moves to handle roll
 const gamePieceClicked = (event) => {
   const eventTarget = event.target
+  currentGamePiece = eventTarget
   if (isPlayer1Turn) {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
       gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
     }
-    handleMovementRoll(eventTarget)
+    handleMovementRoll()
   } else {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player2OccupiedCells[i] - 1]
       gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
     }
-    handleMovementRoll(eventTarget)
+    handleMovementRoll()
   }
 }
 const setGamePieceEventListeners = () => {
