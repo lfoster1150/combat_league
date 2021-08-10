@@ -7,6 +7,9 @@ let tackleLocation = undefined
 let ballLocation = 226
 let isPlayer1Turn = true
 let isPlayer2Turn = false
+let hasPlayerRolled = false
+let endTurn = false
+let previousRadius = []
 let player1OccupiedCells = []
 // let player1TackleZone = ​[] /// giving an error for some reason. Will need to re-visit
 let player2OccupiedCells = []
@@ -18,6 +21,9 @@ let player1StartingPositions = [
 let player2StartingPositions = [
   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
 ]
+let currentGamePiece = undefined
+let currentMovesLeft = 0
+let moveRadiusToBeRemoved = []
 /// Body Parts ///
 let field = document.querySelector('#field')
 let fieldSquares = field.children
@@ -37,6 +43,7 @@ const toggleTurn = () => {
     isPlayer2Turn = false
     setGamePieceEventListeners()
   }
+  endTurn = false
 }
 // Creates all 450 unique game squares
 const createField = () => {
@@ -90,22 +97,60 @@ const roll = (diceSize) => {
   return Math.ceil(Math.random() * diceSize)
 }
 // Needed to handle roll after player selects piece to move
-const handleRoll = () => {
+const handleMovementRoll = (gamePiece) => {
   instructions.innerText = 'Please press the roll button to roll your D20...'
   rollButton.addEventListener('click', () => {
-    let rollNum = roll(20)
-    instructions.innerText = `You rolled a ${rollNum}!`
-    rollAmount.innerText = rollNum
-    return rollNum
+    currentRoll = roll(20)
+    instructions.innerText = `You rolled a ${currentRoll}!`
+    rollAmount.innerText = currentRoll
+    handleMove(gamePiece, currentRoll)
   })
 }
-// Logic needed to move piece
-const movePieceStart = (gamePiece) => {
-  const currentRoll = handleRoll()
-  const squareLocation = gamePiece.parentNode.dataset.position
-  console.log(gamePiece.parentNode)
-  let movesLeft = currentRoll
+const movePiece = (event, gamePiece, array, movesLeft) => {
+  removeEventListenersAndResetColor(array)
+  event.target.appendChild(gamePiece)
+  movesLeft -= 1
+  handleMove(gamePiece, movesLeft)
 }
+// Removes event listeners and resets colors current movement radius
+const removeEventListenersAndResetColor = (arr) => {
+  for (let i = 0; i < 8; i++) {
+    const cellToRemove = fieldSquares[arr[i] - 1]
+    cellToRemove.removeEventListener('click', (event) => {
+      movePiece(event, gamePiece, movesAvailableArray, movesLeft)
+    })
+    cellToRemove.style.backgroundColor = 'green'
+  }
+}
+// Handles movement after roll is made
+const handleMove = (gamePiece, movesLeft) => {
+  let currentFieldSquare = gamePiece.parentNode
+  let squareLocation = currentFieldSquare.dataset.position
+
+  instructions.innerText = `You have ${movesLeft} moves left...`
+  // endTurnButton.addEventListener('click', () => {
+  //   return
+  // })
+  let movesAvailableArray = [
+    parseFloat(squareLocation) - 31,
+    parseFloat(squareLocation) - 30,
+    parseFloat(squareLocation) - 29,
+    parseFloat(squareLocation) - 1,
+    parseFloat(squareLocation) + 1,
+    parseFloat(squareLocation) + 29,
+    parseFloat(squareLocation) + 30,
+    parseFloat(squareLocation) + 31
+  ]
+  movesAvailableArray = movesAvailableArray.map((num) => parseFloat(num))
+  for (let i = 0; i < 8; i++) {
+    const cellToHighlight = fieldSquares[movesAvailableArray[i] - 1]
+    cellToHighlight.style.backgroundColor = 'lightgreen'
+    cellToHighlight.addEventListener('click', (event) => {
+      movePiece(event, gamePiece, movesAvailableArray, movesLeft)
+    })
+  }
+}
+// Run when a ggame piece is clicked, then moves to handle roll
 const gamePieceClicked = (event) => {
   const eventTarget = event.target
   if (isPlayer1Turn) {
@@ -113,13 +158,13 @@ const gamePieceClicked = (event) => {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
       gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
     }
-    movePieceStart(eventTarget)
+    handleMovementRoll(eventTarget)
   } else {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player2OccupiedCells[i] - 1]
       gamePiece.firstChild.removeEventListener('click', gamePieceClicked)
     }
-    movePieceStart(eventTarget)
+    handleMovementRoll(eventTarget)
   }
 }
 const setGamePieceEventListeners = () => {
@@ -144,5 +189,3 @@ const startGame = () => {
 // Starts game on reload
 startGame()
 /// Event Listeners ///
-endTurnButton.addEventListener('click', toggleTurn)
-// rollButton.addEventListener('click', roll)
