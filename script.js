@@ -7,11 +7,9 @@ let gameActive = false
 let player1Score = 0
 let player2Score = 0
 let currentRoll = undefined
-let tackleLocation = undefined
 let ballLocation = 226
 let isPlayer1Turn = true
 let isPlayer2Turn = false
-let hasPlayerRolled = false
 let endTurn = false
 let previousRadius = []
 let player1OccupiedCells = []
@@ -30,6 +28,11 @@ let currentMovesLeft = 0
 let moveRadiusToBeRemoved = []
 let squareMovedFrom = 0
 let squareMovedTo = 0
+// Global variables used in tackling functions
+let hasPlayer1Rolled = false
+let hasPlayer2Rolled = false
+let tackledGamePieceLocation = 0
+let tacklerLocation = 0
 
 /// Body Parts ///
 let field = document.querySelector('#field')
@@ -179,10 +182,10 @@ const movementRoll = () => {
   currentRoll = roll(20)
   instructions.innerText = `You rolled a ${currentRoll}!`
   if (isPlayer1Turn) {
-    rollButton1.addEventListener('click', movementRoll)
+    rollButton1.removeEventListener('click', movementRoll)
     rollAmount1.innerText = currentRoll
   } else {
-    rollButton2.addEventListener('click', movementRoll)
+    rollButton2.removeEventListener('click', movementRoll)
     rollAmount2.innerText = currentRoll
   }
   currentMovesLeft = currentRoll
@@ -197,7 +200,7 @@ const handleMovementRoll = () => {
     rollButton2.addEventListener('click', movementRoll)
   }
 }
-// Checks for current piece moving into tackle radius of opponent
+// Checks for current piece moving into tackle radius of opponent. Returns index of opposite tem position is found returns -1 if not
 const checkForTackle = (position) => {
   if (isPlayer1Turn) {
     return tackleRadiusTeam2.reduce((acc, arr) => {
@@ -219,17 +222,69 @@ const checkForTackle = (position) => {
     }, -1)
   }
 }
+const attachDebris = (tile) => {}
+const tackleResult = (player1Rolled, player2Rolled) => {
+  if (player1Rolled === player2Rolled) {
+    instructions.innerText = `There was a massive collision. Both players were injured in the process.`
+    attachDebris(tackledGamePieceLocation)
+    attachDebris(tacklerLocation)
+  }
+}
+const tackleRoll1 = () => {
+  const roll1 = roll(20)
+  rollAmount1.innerText = roll1
+  rollButton1.removeEventListener('click', tackleRoll1)
+  hasPlayer1Rolled = true
+  handleTackleRoll()
+}
+const tackleRoll2 = () => {
+  const roll2 = roll(20)
+  rollAmount2.innerText = roll2
+  rollButton2.removeEventListener('click', tackleRoll2)
+  hasPlayer2Rolled = true
+  handleTackleRoll()
+}
+const handleTackleRoll = () => {
+  if (hasPlayer1Rolled && hasPlayer2Rolled) {
+    const player1Rolled = parseFloat(rollAmount1.innerText)
+    const player2Rolled = parseFloat(rollAmount2.innerText)
+    tackleResult(player1Rolled, player2Rolled)
+  } else if (hasPlayer1Rolled) {
+    instructions.innerText = `Player 1 rolled a ${rollAmount1.innerText}. Player 2, press the ${team2Color} [ROLL] button to roll...`
+    // rollButton2.addEventListener('click', tackleRoll2)
+  } else if (hasPlayer2Rolled) {
+    instructions.innerText = `Player 2 rolled a ${rollAmount2.innerText}. Player 1, press the ${team1Color} [ROLL] button to roll...`
+    // rollButton1.addEventListener('click', tackleRoll1)
+  } else {
+    instructions.innerText = `Player 2, press the ${team1Color} [ROLL] button to roll. Player 2, press the ${team2Color} [ROLL] button to roll...`
+    rollButton1.addEventListener('click', tackleRoll1)
+    rollButton2.addEventListener('click', tackleRoll2)
+  }
+}
+// Handles tackle given current game piece and tackle location
+const handleTackle = (gamePiece, arrPosition) => {
+  tackledGamePieceLocation = parseFloat(gamePiece.parentNode.dataset.position)
+  if (isPlayer1Turn) {
+    tacklerLocation = player2OccupiedCells[arrPosition]
+    handleTackleRoll()
+  } else {
+    tacklerLocation = player1OccupiedCells[arrPosition]
+    handleTackleRoll()
+  }
+}
 // Actually removes the piece
 const movePiece = (event) => {
   removeEventListenersAndResetColor(moveRadiusToBeRemoved)
   event.target.appendChild(currentGamePiece)
   currentMovesLeft -= 1
   squareMovedTo = parseFloat(event.target.dataset.position)
-  const tackleLocation = checkForTackle(squareMovedTo)
+  let tackleLocation = checkForTackle(squareMovedTo)
+  tackleLocation = parseFloat(tackleLocation)
+  console.log(parseFloat(checkForTackle(squareMovedTo)))
   if (tackleLocation >= 0) {
-    handleTackle()
+    handleTackle(currentGamePiece, tackleLocation)
   } else {
-    if (currentMovesLeft >= 0) {
+    if (tackleLocation < 0 && currentMovesLeft >= 0) {
       handleMove()
     } else {
       updatePositions()
