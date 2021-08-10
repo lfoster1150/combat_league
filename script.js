@@ -24,6 +24,9 @@ let player2StartingPositions = [
 let currentGamePiece = undefined
 let currentMovesLeft = 0
 let moveRadiusToBeRemoved = []
+let squareMovedFrom = 0
+let squareMovedTo = 0
+
 /// Body Parts ///
 let field = document.querySelector('#field')
 let fieldSquares = field.children
@@ -32,18 +35,40 @@ const endTurnButton = document.querySelector('#end-turn-button')
 const rollButton = document.querySelector('#roll-button')
 const rollAmount = document.querySelector('#roll-amount')
 /// Functions ///
+// Updates current positions array for team
+const updatePositions = () => {
+  console.log(player1OccupiedCells)
+  parsedSquareMovedFrom = parseFloat(squareMovedFrom)
+  if (isPlayer1Turn) {
+    player1OccupiedCells = player1OccupiedCells.map((position) => {
+      console.log(Number.isInteger(position))
+      if (position === parsedSquareMovedFrom) {
+        return squareMovedTo
+      } else {
+        return position
+      }
+    })
+  } else {
+    player2OccupiedCells = player2OccupiedCells.map((position) => {
+      if (position === parsedSquareMovedFrom) {
+        return squareMovedTo
+      } else {
+        return position
+      }
+    })
+  }
+  toggleTurn()
+}
 // Toggles  turn depending on who's currently in control.
 const toggleTurn = () => {
   if (isPlayer1Turn) {
     isPlayer1Turn = false
     isPlayer2Turn = true
-    setGamePieceEventListeners()
   } else {
     isPlayer1Turn = true
     isPlayer2Turn = false
-    setGamePieceEventListeners()
   }
-  endTurn = false
+  setGamePieceEventListeners()
 }
 // Creates all 450 unique game squares
 const createField = () => {
@@ -100,18 +125,25 @@ const roll = (diceSize) => {
 const handleMovementRoll = () => {
   instructions.innerText = 'Please press the roll button to roll your D20...'
   rollButton.addEventListener('click', () => {
-    currentRoll = roll(20)
+    currentRoll = roll(3)
     instructions.innerText = `You rolled a ${currentRoll}!`
     rollAmount.innerText = currentRoll
     currentMovesLeft = currentRoll
     handleMove()
   })
 }
+// Actually removes the piece
 const movePiece = (event) => {
   removeEventListenersAndResetColor(moveRadiusToBeRemoved)
   event.target.appendChild(currentGamePiece)
   currentMovesLeft -= 1
-  handleMove()
+  squareMovedTo = parseFloat(event.target.dataset.position)
+  console.log(squareMovedTo)
+  if (currentMovesLeft > 0) {
+    handleMove()
+  } else {
+    updatePositions()
+  }
 }
 // Removes event listeners and resets colors current movement radius
 const removeEventListenersAndResetColor = (arr) => {
@@ -126,9 +158,10 @@ const handleMove = () => {
   let fieldSquare = currentGamePiece.parentNode
   let squareLocation = fieldSquare.dataset.position
   instructions.innerText = `You have ${currentMovesLeft} moves left...`
-  // endTurnButton.addEventListener('click', () => {
-  //   return
-  // })
+  endTurnButton.addEventListener('click', () => {
+    removeEventListenersAndResetColor(moveRadiusToBeRemoved)
+    updatePositions()
+  })
   let movesAvailableArray = [
     parseFloat(squareLocation) - 31,
     parseFloat(squareLocation) - 30,
@@ -147,10 +180,12 @@ const handleMove = () => {
     cellToHighlight.addEventListener('click', movePiece)
   }
 }
+
 // Run when a ggame piece is clicked, then moves to handle roll
 const gamePieceClicked = (event) => {
   const eventTarget = event.target
   currentGamePiece = eventTarget
+  squareMovedFrom = event.target.parentNode.dataset.position
   if (isPlayer1Turn) {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
