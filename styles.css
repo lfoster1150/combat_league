@@ -42,19 +42,25 @@ li {
   height: 100%;
   grid-area: 2 / 2 / span 1 / span 1;
 }
-#roll-button {
+.roll-button {
   display: inline-flex;
   justify-content: space-between;
   align-items: center;
   width: 15%;
   padding: 0 10px;
 }
-#roll-amount {
+.roll-amount {
   background-color: black;
-  color: red;
   padding: 5px 10px;
   margin: 5px 10px;
 }
+#roll-amount-1 {
+  color: red;
+}
+#roll-amount-2 {
+  color: rgb(81, 81, 255);
+}
+
 #field-container {
   display: grid;
   grid-template-columns: 3fr 30fr 3fr;

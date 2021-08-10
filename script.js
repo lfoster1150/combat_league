@@ -1,4 +1,8 @@
 /// GLOBAL VARIABLES ///
+const team1Name = 'Team 1'
+const team2Name = 'Team 2'
+const team1Color = 'red'
+const team2Color = 'blue'
 let gameActive = false
 let player1Score = 0
 let player2Score = 0
@@ -15,10 +19,10 @@ let player1OccupiedCells = []
 let player2OccupiedCells = []
 // let player2TackleZone ​= [] /// giving an error for some reason. Will need to re-visit
 let currentTurnMovesRemaining = 0 // Will probably need to move inside a function ( counts down after every movement) //
-let player1StartingPositions = [
+let player2StartingPositions = [
   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
 ]
-let player2StartingPositions = [
+let player1StartingPositions = [
   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
 ]
 let currentGamePiece = undefined
@@ -32,9 +36,27 @@ let field = document.querySelector('#field')
 let fieldSquares = field.children
 const instructions = document.querySelector('#instructions')
 const endTurnButton = document.querySelector('#end-turn-button')
-const rollButton = document.querySelector('#roll-button')
-const rollAmount = document.querySelector('#roll-amount')
+const rollButton1 = document.querySelector('#roll-button-1')
+const rollButton2 = document.querySelector('#roll-button-2')
+const rollAmount1 = document.querySelector('#roll-amount-1')
+const rollAmount2 = document.querySelector('#roll-amount-2')
 /// Functions ///
+/// current team returns a string with the team name of whoever is currently in control
+const currentTeam = () => {
+  if (isPlayer1Turn) {
+    return team1Name
+  } else {
+    return team2Name
+  }
+}
+/// current color returns a string with the color whoever is currently in control
+const currentColor = () => {
+  if (isPlayer1Turn) {
+    return team1Color
+  } else {
+    return team2Color
+  }
+}
 // Updates current positions array for team
 const updatePositions = () => {
   console.log(player1OccupiedCells)
@@ -121,16 +143,27 @@ const resetOccupiedCells = () => {
 const roll = (diceSize) => {
   return Math.ceil(Math.random() * diceSize)
 }
+const movementRoll = () => {
+  currentRoll = roll(3)
+  instructions.innerText = `You rolled a ${currentRoll}!`
+  if (isPlayer1Turn) {
+    rollButton1.addEventListener('click', movementRoll)
+    rollAmount1.innerText = currentRoll
+  } else {
+    rollButton2.addEventListener('click', movementRoll)
+    rollAmount2.innerText = currentRoll
+  }
+  currentMovesLeft = currentRoll
+  handleMove()
+}
 // Needed to handle roll after player selects piece to move
 const handleMovementRoll = () => {
   instructions.innerText = 'Please press the roll button to roll your D20...'
-  rollButton.addEventListener('click', () => {
-    currentRoll = roll(3)
-    instructions.innerText = `You rolled a ${currentRoll}!`
-    rollAmount.innerText = currentRoll
-    currentMovesLeft = currentRoll
-    handleMove()
-  })
+  if (isPlayer1Turn) {
+    rollButton1.addEventListener('click', movementRoll)
+  } else {
+    rollButton2.addEventListener('click', movementRoll)
+  }
 }
 // Actually removes the piece
 const movePiece = (event) => {
@@ -139,7 +172,7 @@ const movePiece = (event) => {
   currentMovesLeft -= 1
   squareMovedTo = parseFloat(event.target.dataset.position)
   console.log(squareMovedTo)
-  if (currentMovesLeft > 0) {
+  if (currentMovesLeft >= 0) {
     handleMove()
   } else {
     updatePositions()
@@ -156,28 +189,37 @@ const removeEventListenersAndResetColor = (arr) => {
 // Handles movement after roll is made
 const handleMove = () => {
   let fieldSquare = currentGamePiece.parentNode
+  console.log(fieldSquare)
   let squareLocation = fieldSquare.dataset.position
-  instructions.innerText = `You have ${currentMovesLeft} moves left...`
-  endTurnButton.addEventListener('click', () => {
-    removeEventListenersAndResetColor(moveRadiusToBeRemoved)
-    updatePositions()
-  })
-  let movesAvailableArray = [
-    parseFloat(squareLocation) - 31,
-    parseFloat(squareLocation) - 30,
-    parseFloat(squareLocation) - 29,
-    parseFloat(squareLocation) - 1,
-    parseFloat(squareLocation) + 1,
-    parseFloat(squareLocation) + 29,
-    parseFloat(squareLocation) + 30,
-    parseFloat(squareLocation) + 31
-  ]
-  movesAvailableArray = movesAvailableArray.map((num) => parseFloat(num))
-  moveRadiusToBeRemoved = movesAvailableArray
-  for (let i = 0; i < 8; i++) {
-    const cellToHighlight = fieldSquares[movesAvailableArray[i] - 1]
-    cellToHighlight.style.backgroundColor = 'lightgreen'
-    cellToHighlight.addEventListener('click', movePiece)
+  if (currentMovesLeft === 0) {
+    instructions.innerText = `You have ${currentMovesLeft} moves left. Press [End Turn] button to end turn...`
+    endTurnButton.addEventListener('click', () => {
+      removeEventListenersAndResetColor(moveRadiusToBeRemoved)
+      updatePositions()
+    })
+  } else {
+    instructions.innerText = `You have ${currentMovesLeft} moves left. Make your move or press the [End Turn] button to end turn...`
+    endTurnButton.addEventListener('click', () => {
+      removeEventListenersAndResetColor(moveRadiusToBeRemoved)
+      updatePositions()
+    })
+    let movesAvailableArray = [
+      parseFloat(squareLocation) - 31,
+      parseFloat(squareLocation) - 30,
+      parseFloat(squareLocation) - 29,
+      parseFloat(squareLocation) - 1,
+      parseFloat(squareLocation) + 1,
+      parseFloat(squareLocation) + 29,
+      parseFloat(squareLocation) + 30,
+      parseFloat(squareLocation) + 31
+    ]
+    movesAvailableArray = movesAvailableArray.map((num) => parseFloat(num))
+    moveRadiusToBeRemoved = movesAvailableArray
+    for (let i = 0; i < 8; i++) {
+      const cellToHighlight = fieldSquares[movesAvailableArray[i] - 1]
+      cellToHighlight.style.backgroundColor = 'lightgreen'
+      cellToHighlight.addEventListener('click', movePiece)
+    }
   }
 }
 
@@ -201,6 +243,7 @@ const gamePieceClicked = (event) => {
   }
 }
 const setGamePieceEventListeners = () => {
+  instructions.innerText = `It's ${currentTeam()}'s turn.! Pick a ${currentColor()} game piece to start move...`
   if (isPlayer1Turn) {
     for (let i = 0; i < 11; i++) {
       const gamePiece = fieldSquares[player1OccupiedCells[i] - 1]
