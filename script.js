@@ -320,14 +320,16 @@ const continueMove = () => {
   handleMove()
 }
 // Attaches ball after fumble
-const attachBallAfterFumble = (gamePiece) => {
-  const ball = document.querySelector('#ball')
+const attachBallAfterFumble = (location) => {
+  const gamePieceLocation = fieldSquares[location - 1]
+  const gamePiece = gamePieceLocation.firstElementChild
+  const ball = document.getElementById('#ball')
   gamePiece.append(ball)
 }
 // handles fumble
 const fumble = (arr) => {
   const randNumber = Math.floor(Math.random() * arr.length)
-  const randLocation = arr[randNumber]
+  let randLocation = parseFloat(arr[randNumber])
   const team1LocationCheck = player1OccupiedCells.reduce((acc, num) => {
     if (num === randLocation) {
       acc = randLocation
@@ -347,15 +349,13 @@ const fumble = (arr) => {
   if (team1LocationCheck > 0) {
     player1HasBall = true
     player2HasBall = false
-    const gamePieceAtRand = fieldSquares[randLocation - 1].firstChild
     currentBallLocation = randLocation
-    attachBallAfterFumble(gamePieceAtRand)
+    attachBallAfterFumble(randLocation)
   } else if (team2LocationCheck > 0) {
     player1HasBall = false
     player2HasBall = true
-    const gamePieceAtRand = fieldSquares[randLocation - 1].firstChild
     currentBallLocation = randLocation
-    attachBallAfterFumble(gamePieceAtRand)
+    attachBallAfterFumble(randLocation)
   } else {
     currentBallLocation = randLocation
     placeBall(randLocation)
@@ -365,8 +365,10 @@ const fumble = (arr) => {
 // Handles a draw or if controlling player is destroyed
 const handleAftermath = (location) => {
   resetTackleRolls()
-  console.log(isBallInvolvedInTackle)
-  if (isBallInvolvedInTackle) {
+  console.log(location)
+  console.log(currentBallLocation)
+  console.log(location === currentBallLocation)
+  if (location === currentBallLocation) {
     const fumbleArray = fumbleRadiusOfPosition(location)
     fumble(fumbleArray)
     isBallInvolvedInTackle = false
@@ -376,8 +378,16 @@ const handleAftermath = (location) => {
   endTurnButton.addEventListener('click', endTurn)
 }
 // Handlesif controlling player is not destroyed
-const handleAftermathControllerWins = () => {
+const handleAftermathControllerWins = (location) => {
   resetTackleRolls()
+  console.log(location)
+  console.log(currentBallLocation)
+  console.log(location === currentBallLocation)
+  if (location === currentBallLocation) {
+    const fumbleArray = fumbleRadiusOfPosition(location)
+    fumble(fumbleArray)
+    isBallInvolvedInTackle = false
+  }
   endTurnButton.removeEventListener('click', endTurn)
   instructions.innerText = `The controlling player survived the tackle. Press [CONTINUE] button to continue turn...`
   endTurnButton.innerText = 'CONTINUE'
@@ -394,7 +404,7 @@ const tackleResult = (player1Rolled, player2Rolled) => {
     } else if (player1Rolled > player2Rolled) {
       instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
-      handleAftermathControllerWins()
+      handleAftermathControllerWins(tacklerLocation)
     } else {
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
@@ -407,13 +417,13 @@ const tackleResult = (player1Rolled, player2Rolled) => {
       attachDebris(tacklerLocation)
       handleAftermath(tackledGamePieceLocation)
     } else if (player1Rolled > player2Rolled) {
-      instructions.innerText = `Player 1 got the best of player 1. That tile is now cluttered with debris.`
+      instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
       handleAftermath(tackledGamePieceLocation)
     } else {
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
-      handleAftermathControllerWins()
+      handleAftermathControllerWins(tacklerLocation)
     }
   }
 }
@@ -434,9 +444,6 @@ const tackleRoll2 = () => {
 // Checks if ball is involved in tackle
 const checkIfIsBallInvolvedInTackle = () => {
   updateBallLocation()
-  console.log(ballLocation)
-  console.log(tacklerLocation)
-  console.log(tackledGamePieceLocation)
   if (
     tacklerLocation === currentBallLocation ||
     tackledGamePieceLocation === currentBallLocation
@@ -464,6 +471,7 @@ const handleTackleRoll = () => {
 }
 // Handles tackle given current game piece and tackle location
 const handleTackle = (gamePiece, arrPosition) => {
+  endTurnButton.removeEventListener('click', endTurn)
   tackledGamePieceLocation = parseFloat(gamePiece.parentNode.dataset.position)
   if (isPlayer1Turn) {
     let parsedArrPosition = parseFloat(arrPosition)
@@ -568,7 +576,6 @@ const updateBallLocation = () => {
 // Handles movement after roll is made
 const handleMove = () => {
   updateBallLocation()
-  // console.log(ballLocation)
   let fieldSquare = currentGamePiece.parentNode
   let squareLocation = fieldSquare.dataset.position
   squareMovedFrom = squareLocation
@@ -642,6 +649,12 @@ const placeBall = (ballLocation) => {
   gameBall.id = 'ball'
   fieldSquares[parsedBallLocation - 1].appendChild(gameBall)
 }
+// testing function. Remove after
+const testingAttach = () => {
+  const gamePiece = fieldSquares[228 - 1].firstChild
+  const ball = document.querySelector('#ball')
+  gamePiece.append(ball)
+}
 const startGame = () => {
   resetOccupiedCells()
   createField()
@@ -649,6 +662,7 @@ const startGame = () => {
   placeBall(startingBallLocation)
   setGamePieceEventListeners()
   initializeTackleRadius()
+  // testingAttach()
 }
 // Starts game on reload
 startGame()
