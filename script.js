@@ -83,15 +83,13 @@ const initializeTackleRadius = () => {
 }
 // Updates tackle radius of team that just ended turn based on updatePositions()
 const updateTackleRadius = () => {
-  if (isPlayer1Turn) {
-    tackleRadiusTeam1 = player1OccupiedCells.map((position) => {
-      return tackleRadiusOfPosition(position)
-    })
-  } else {
-    tackleRadiusTeam2 = player2OccupiedCells.map((position) => {
-      return tackleRadiusOfPosition(position)
-    })
-  }
+  tackleRadiusTeam1 = player1OccupiedCells.map((position) =>
+    tackleRadiusOfPosition(position)
+  )
+
+  tackleRadiusTeam2 = player2OccupiedCells.map((position) =>
+    tackleRadiusOfPosition(position)
+  )
 }
 // Updates current positions array for team
 const updatePositions = () => {
@@ -257,6 +255,7 @@ const attachDebris = (tile) => {
   debris.classList.add('debris')
   gamePieceTile.appendChild(debris)
   tilesWithDebris.push(tileAsNumber)
+  updateTackleRadius()
   player1OccupiedCells = player1OccupiedCells.filter(
     (num) => num != tileAsNumber
   )
@@ -271,8 +270,6 @@ const handleAftermath = () => {
 }
 // Handles results of tackle, and sends either to handleMove if the player is still in charge, or to handleAftermath if not
 const tackleResult = (player1Rolled, player2Rolled) => {
-  console.log(tackledGamePieceLocation)
-  console.log(tacklerLocation)
   if (isPlayer1Turn) {
     if (player1Rolled === player2Rolled) {
       instructions.innerText = `There was a massive collision. Both players were injured in the process.`
@@ -284,7 +281,7 @@ const tackleResult = (player1Rolled, player2Rolled) => {
       attachDebris(tacklerLocation)
       handleMove()
     } else {
-      instructions.innerText = `Player 2 got the best of player 2. That tile is now cluttered with debris.`
+      instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
       handleAftermath()
     }
@@ -326,10 +323,8 @@ const handleTackleRoll = () => {
     tackleResult(player1Rolled, player2Rolled)
   } else if (hasPlayer1Rolled) {
     instructions.innerText = `Player 1 rolled a ${rollAmount1.innerText}. Player 2, press the ${team2Color} [ROLL] button to roll...`
-    // rollButton2.addEventListener('click', tackleRoll2)
   } else if (hasPlayer2Rolled) {
     instructions.innerText = `Player 2 rolled a ${rollAmount2.innerText}. Player 1, press the ${team1Color} [ROLL] button to roll...`
-    // rollButton1.addEventListener('click', tackleRoll1)
   } else {
     instructions.innerText = `Player 2, press the ${team1Color} [ROLL] button to roll. Player 2, press the ${team2Color} [ROLL] button to roll...`
     rollButton1.addEventListener('click', tackleRoll1)
@@ -340,18 +335,16 @@ const handleTackleRoll = () => {
 const handleTackle = (gamePiece, arrPosition) => {
   tackledGamePieceLocation = parseFloat(gamePiece.parentNode.dataset.position)
   if (isPlayer1Turn) {
-    console.log(player2OccupiedCells)
     let parsedArrPosition = parseFloat(arrPosition)
     tacklerLocation = player2OccupiedCells[parsedArrPosition]
     handleTackleRoll()
   } else {
-    console.log(player1OccupiedCells)
     let parsedArrPosition = parseFloat(arrPosition)
     tacklerLocation = player1OccupiedCells[parsedArrPosition]
     handleTackleRoll()
   }
 }
-// Actually removes the piece
+// Actually moves the piece
 const movePiece = (event) => {
   removeEventListenersAndResetColor(moveRadiusToBeRemoved)
   event.target.appendChild(currentGamePiece)
@@ -371,37 +364,45 @@ const movePiece = (event) => {
     }
   }
 }
-
+// Updates movesAvailableArray, returns arrray
+const updateMovesAvailableArray = (squareLocation) => {
+  let movesAvailableArray = [
+    parseFloat(squareLocation) - 31,
+    parseFloat(squareLocation) - 30,
+    parseFloat(squareLocation) - 29,
+    parseFloat(squareLocation) - 1,
+    parseFloat(squareLocation) + 1,
+    parseFloat(squareLocation) + 29,
+    parseFloat(squareLocation) + 30,
+    parseFloat(squareLocation) + 31
+  ]
+  const parsedTilesWithDebris = tilesWithDebris.map((num) => parseFloat(num))
+  console.log(parsedTilesWithDebris)
+  let parsedMovesAvailableArray = movesAvailableArray.map((num) =>
+    parseFloat(num)
+  )
+  console.log(parsedMovesAvailableArray)
+  parsedMovesAvailableArray = parsedMovesAvailableArray.filter((num) => {
+    const parsedNum = parseFloat(num)
+    const player1Check = player1OccupiedCells.indexOf(parsedNum) >= 0
+    const player2Check = player2OccupiedCells.indexOf(parsedNum) >= 0
+    const debrisCheck = parsedTilesWithDebris.indexOf(parsedNum) >= 0
+    return !(player1Check || player2Check || debrisCheck)
+  })
+  return parsedMovesAvailableArray
+}
 // Handles movement after roll is made
 const handleMove = () => {
   let fieldSquare = currentGamePiece.parentNode
   let squareLocation = fieldSquare.dataset.position
   squareMovedFrom = squareLocation
-
   if (currentMovesLeft === 0) {
     instructions.innerText = `You have ${currentMovesLeft} moves left. Press [End Turn] button to end turn...`
     endTurnButton.addEventListener('click', endTurn)
   } else {
     instructions.innerText = `You have ${currentMovesLeft} moves left. Make your move or press the [End Turn] button to end turn...`
     endTurnButton.addEventListener('click', endTurn)
-    let movesAvailableArray = [
-      parseFloat(squareLocation) - 31,
-      parseFloat(squareLocation) - 30,
-      parseFloat(squareLocation) - 29,
-      parseFloat(squareLocation) - 1,
-      parseFloat(squareLocation) + 1,
-      parseFloat(squareLocation) + 29,
-      parseFloat(squareLocation) + 30,
-      parseFloat(squareLocation) + 31
-    ]
-    movesAvailableArray = movesAvailableArray.map((num) => parseFloat(num))
-    movesAvailableArray = movesAvailableArray.filter((num) => {
-      const parsedNum = parseFloat(num)
-      const player1Check = player1OccupiedCells.indexOf(parsedNum) > 0
-      const player2Check = player2OccupiedCells.indexOf(parsedNum) > 0
-      const debrisCheck = tilesWithDebris.indexOf(parsedNum) > 0
-      return !(player1Check || player2Check || debrisCheck)
-    })
+    let movesAvailableArray = updateMovesAvailableArray(squareLocation)
     moveRadiusToBeRemoved = movesAvailableArray
     for (let i = 0; i < movesAvailableArray.length; i++) {
       const cellToHighlight = fieldSquares[movesAvailableArray[i] - 1]
@@ -414,7 +415,6 @@ const handleMove = () => {
     }
   }
 }
-
 // Run when a ggame piece is clicked, then moves to handle roll
 const gamePieceClicked = (event) => {
   const eventTarget = event.target
