@@ -134,6 +134,7 @@ li {
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
   z-index: 6;
   width: 40%;
   height: 20%;
