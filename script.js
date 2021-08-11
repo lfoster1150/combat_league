@@ -15,16 +15,22 @@ let player1OccupiedCells = []
 let player2OccupiedCells = []
 let currentTurnMovesRemaining = 0 // Will probably need to move inside a function ( counts down after every movement) //
 // Starting Positions for actual game
+// let player1StartingPositions = [
+//   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
+// ]
 // let player2StartingPositions = [
 //   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
 // ]
 // Starting positions for testing
-let player2StartingPositions = [
-  37, 127, 217, 307, 397, 58, 148, 238, 328, 418, 240
-]
 let player1StartingPositions = [
   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
 ]
+player1StartingPositions = player1StartingPositions.map((num) => num + 8)
+let player2StartingPositions = [
+  56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
+]
+player2StartingPositions = player2StartingPositions.map((num) => num - 8)
+
 let tackleRadiusTeam1 = []
 let tackleRadiusTeam2 = []
 let currentGamePiece = undefined
@@ -38,7 +44,11 @@ let hasPlayer1Rolled = false
 let hasPlayer2Rolled = false
 let tackledGamePieceLocation = 0
 let tacklerLocation = 0
-
+// Global variables used for ball logic
+// ball location at start. Will change during gameplay
+let currentBallLocation = 226
+let player1HasBall = false
+let player2HasBall = false
 /// Body Parts ///
 let field = document.querySelector('#field')
 let fieldSquares = field.children
@@ -272,8 +282,10 @@ const attachDebris = (tile) => {
 const resetTackleRolls = () => {
   hasPlayer1Rolled = false
   hasPlayer2Rolled = false
+}
+const resetRollText = () => {
   rollAmount1.innerText = 00
-  rollAmount1.innerText = 00
+  rollAmount2.innerText = 00
 }
 // Throws to handle move after controlling player wins a tackle
 const continueMove = () => {
@@ -291,7 +303,8 @@ const handleAftermath = () => {
 const handleAftermathControllerWins = () => {
   resetTackleRolls()
   endTurnButton.removeEventListener('click', endTurn)
-  instructions.innerText = `The controlling player survived the tackle. Press [End Turn] button to end turn...`
+  instructions.innerText = `The controlling player survived the tackle. Press [CONTINUE] button to continue turn...`
+  endTurnButton.innerText = 'CONTINUE'
   endTurnButton.addEventListener('click', continueMove)
 }
 // Handles results of tackle, and sends either to handleMove if the player is still in charge, or to handleAftermath if not
@@ -370,12 +383,42 @@ const handleTackle = (gamePiece, arrPosition) => {
     handleTackleRoll()
   }
 }
+// removes ball from tile
+const removeBall = () => {
+  const ball = document.querySelector('#ball')
+  ball.remove()
+}
+// Attaches ball to game piece
+const attachBallToGamePiece = (gamePiece) => {
+  if (isPlayer1Turn) {
+    player1HasBall = true
+    player2HasBall = false
+  } else {
+    player1HasBall = false
+    player2HasBall = true
+  }
+  const ball = document.querySelector('#ball')
+  gamePiece.appendChild(ball)
+}
+// Checks for ball before each move
+const checkForBall = (square) => {
+  if (square === currentBallLocation) {
+    return true
+  } else {
+    return false
+  }
+}
 // Actually moves the piece
 const movePiece = (event) => {
   removeEventListenersAndResetColor(moveRadiusToBeRemoved)
-  event.target.appendChild(currentGamePiece)
-  currentMovesLeft -= 1
   squareMovedTo = parseFloat(event.target.dataset.position)
+  if (checkForBall(squareMovedTo)) {
+    attachBallToGamePiece(currentGamePiece)
+    event.target.appendChild(currentGamePiece)
+  } else {
+    event.target.appendChild(currentGamePiece)
+  }
+  currentMovesLeft -= 1
   updatePositions()
   let tacklerArrayLocation = checkForTackle(squareMovedTo)
   tacklerArrayLocation = parseFloat(tacklerArrayLocation)
@@ -403,11 +446,9 @@ const updateMovesAvailableArray = (squareLocation) => {
     parseFloat(squareLocation) + 31
   ]
   const parsedTilesWithDebris = tilesWithDebris.map((num) => parseFloat(num))
-  console.log(parsedTilesWithDebris)
   let parsedMovesAvailableArray = movesAvailableArray.map((num) =>
     parseFloat(num)
   )
-  console.log(parsedMovesAvailableArray)
   parsedMovesAvailableArray = parsedMovesAvailableArray.filter((num) => {
     const parsedNum = parseFloat(num)
     const player1Check = player1OccupiedCells.indexOf(parsedNum) >= 0
@@ -417,8 +458,23 @@ const updateMovesAvailableArray = (squareLocation) => {
   })
   return parsedMovesAvailableArray
 }
+// updates location of ball based on weather ball is part of a square or game piece
+const updateBallLocation = () => {
+  const ball = document.querySelector('#ball')
+  if (ball.parentNode.dataset.position) {
+    currentBallLocation = parseFloat(ball.parentNode.dataset.position)
+  } else if (ball.parentNode.parentNode.dataset.position) {
+    currentBallLocation = parseFloat(
+      ball.parentNode.parentNode.dataset.position
+    )
+  } else {
+    console.log(`Can't find ball...`)
+  }
+}
 // Handles movement after roll is made
 const handleMove = () => {
+  updateBallLocation()
+  console.log(currentBallLocation)
   let fieldSquare = currentGamePiece.parentNode
   let squareLocation = fieldSquare.dataset.position
   squareMovedFrom = squareLocation
@@ -443,6 +499,7 @@ const handleMove = () => {
 }
 // Run when a ggame piece is clicked, then moves to handle roll
 const gamePieceClicked = (event) => {
+  resetRollText()
   const eventTarget = event.target
   currentGamePiece = eventTarget
   squareMovedFrom = event.target.parentNode.dataset.position
@@ -484,10 +541,17 @@ const setGamePieceEventListeners = () => {
     }
   }
 }
+const placeBall = () => {
+  const gameBall = document.createElement('div')
+  gameBall.classList.add('ball')
+  gameBall.id = 'ball'
+  fieldSquares[currentBallLocation - 1].appendChild(gameBall)
+}
 const startGame = () => {
   resetOccupiedCells()
   createField()
   boardSetup()
+  placeBall()
   setGamePieceEventListeners()
   initializeTackleRadius()
 }

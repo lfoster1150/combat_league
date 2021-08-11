@@ -107,16 +107,18 @@ li {
   background-color: darkorange;
 }
 .team1 {
-  border-color: red;
+  border-color: #8b0000;
+  align-items: flex-start;
 }
 .team1:hover {
-  border-color: darkred;
+  border-color: rgb(95, 0, 0);
 }
 .team2 {
-  border-color: blue;
+  border-color: darkblue;
+  align-items: flex-end;
 }
 .team2:hover {
-  border-color: darkblue;
+  border-color: rgb(0, 0, 95);
 }
 .debris {
   display: flex;
@@ -127,4 +129,22 @@ li {
   width: 95%;
   z-index: 5;
   background-color: rgb(89, 27, 27);
+}
+.ball {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 6;
+  width: 40%;
+  height: 20%;
+  border: #ff1493 solid 0.6vmin;
+  border-radius: 50%;
+  background-color: black;
+}
+.game-piece > .ball {
+  display: flex;
+  position: absolute;
+  width: 1%;
+  height: 0.5%;
+  margin: 10px;
 }
