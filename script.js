@@ -14,8 +14,13 @@ let previousRadius = []
 let player1OccupiedCells = []
 let player2OccupiedCells = []
 let currentTurnMovesRemaining = 0 // Will probably need to move inside a function ( counts down after every movement) //
+// Starting Positions for actual game
+// let player2StartingPositions = [
+//   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
+// ]
+// Starting positions for testing
 let player2StartingPositions = [
-  56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
+  37, 127, 217, 307, 397, 58, 148, 238, 328, 418, 240
 ]
 let player1StartingPositions = [
   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
@@ -263,10 +268,31 @@ const attachDebris = (tile) => {
     (num) => num != tileAsNumber
   )
 }
+// Resets tackle roll status ()
+const resetTackleRolls = () => {
+  hasPlayer1Rolled = false
+  hasPlayer2Rolled = false
+  rollAmount1.innerText = 00
+  rollAmount1.innerText = 00
+}
+// Throws to handle move after controlling player wins a tackle
+const continueMove = () => {
+  endTurnButton.removeEventListener('click', continueMove)
+  endTurnButton.innerText = 'END TURN'
+  handleMove()
+}
 // Handles a draw or if controlling player is destroyed
 const handleAftermath = () => {
+  resetTackleRolls()
   instructions.innerText = `The controlling player was destroyed. Press [End Turn] button to end turn...`
   endTurnButton.addEventListener('click', endTurn)
+}
+// Handlesif controlling player is not destroyed
+const handleAftermathControllerWins = () => {
+  resetTackleRolls()
+  endTurnButton.removeEventListener('click', endTurn)
+  instructions.innerText = `The controlling player survived the tackle. Press [End Turn] button to end turn...`
+  endTurnButton.addEventListener('click', continueMove)
 }
 // Handles results of tackle, and sends either to handleMove if the player is still in charge, or to handleAftermath if not
 const tackleResult = (player1Rolled, player2Rolled) => {
@@ -279,7 +305,7 @@ const tackleResult = (player1Rolled, player2Rolled) => {
     } else if (player1Rolled > player2Rolled) {
       instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
-      handleMove()
+      handleAftermathControllerWins()
     } else {
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
@@ -298,7 +324,7 @@ const tackleResult = (player1Rolled, player2Rolled) => {
     } else {
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
-      handleMove()
+      handleAftermathControllerWins()
     }
   }
 }
