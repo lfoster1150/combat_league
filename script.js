@@ -74,6 +74,7 @@ const fullTimePage = document.querySelector('#full-time')
 const halfTimeMessage = document.querySelector('#half-time-message')
 const halfScoreTeam1 = document.querySelector('#half-score-team1')
 const halfScoreTeam2 = document.querySelector('#half-score-team2')
+const continueButton = document.querySelector('#continue')
 /// Functions ///
 /// Can use space bar to end/continue turn
 const spaceBar = (event) => {
@@ -84,19 +85,36 @@ const spaceBar = (event) => {
 // testing for half time
 player1Score = 0
 player2Score = 1
-
+// clears board of game pieces and ball
+const clearBoard = () => {
+  for (let i = 0; i < fieldSquares.length; i++) {
+    if (fieldSquares.item(i).firstChild) {
+      fieldSquares.item(i).firstChild.remove()
+    }
+  }
+}
+// Continues game after halftime
+const continueGame = () => {
+  continueButton.removeEventListener('click', continueGame)
+  clearBoard()
+  halfTimePage.style.display = 'none'
+  startGame()
+}
 // displays half time screen
 const halfTime = () => {
   if (player1Score === 1 && player2Score === 0) {
     halfTimeMessage.innerText = `${team1Name} got the early lead! Let's see what happens in the second half...`
     halfScoreTeam1.innerText = player1Score
+    continueButton.addEventListener('click', continueGame)
   } else if (player1Score === 0 && player2Score === 1) {
     halfTimeMessage.innerText = `${team2Name} got the early lead! Let's see what happens in the second half...`
     halfScoreTeam2.innerText = player2Score
+    continueButton.addEventListener('click', continueGame)
   } else if (player1Score === 1 && player2Score === 1) {
     halfTimeMessage.innerText = `${team1Name} and ${team2Name} are tied at the end of regulation. We're going to need another half to settle this...`
     halfScoreTeam1.innerText = player1Score
     halfScoreTeam2.innerText = player2Score
+    continueButton.addEventListener('click', continueGame)
   } else {
     console.log('Something went wrong at halftime')
   }
