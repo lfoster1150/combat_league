@@ -365,9 +365,6 @@ const fumble = (arr) => {
 // Handles a draw or if controlling player is destroyed
 const handleAftermath = (location) => {
   resetTackleRolls()
-  console.log(location)
-  console.log(currentBallLocation)
-  console.log(location === currentBallLocation)
   if (location === currentBallLocation) {
     const fumbleArray = fumbleRadiusOfPosition(location)
     fumble(fumbleArray)
@@ -380,9 +377,6 @@ const handleAftermath = (location) => {
 // Handlesif controlling player is not destroyed
 const handleAftermathControllerWins = (location) => {
   resetTackleRolls()
-  console.log(location)
-  console.log(currentBallLocation)
-  console.log(location === currentBallLocation)
   if (location === currentBallLocation) {
     const fumbleArray = fumbleRadiusOfPosition(location)
     fumble(fumbleArray)
@@ -650,11 +644,8 @@ const placeBall = (ballLocation) => {
   fieldSquares[parsedBallLocation - 1].appendChild(gameBall)
 }
 // testing function. Remove after
-const testingAttach = () => {
-  const gamePiece = fieldSquares[228 - 1].firstChild
-  const ball = document.querySelector('#ball')
-  gamePiece.append(ball)
-}
+// Resets entire game
+const resetGame = () => {}
 const startGame = () => {
   resetOccupiedCells()
   createField()
@@ -662,7 +653,6 @@ const startGame = () => {
   placeBall(startingBallLocation)
   setGamePieceEventListeners()
   initializeTackleRadius()
-  // testingAttach()
 }
 // Starts game on reload
 startGame()
