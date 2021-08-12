@@ -3,6 +3,8 @@ const team1Name = 'Team 1'
 const team2Name = 'Team 2'
 const team1Color = 'red'
 const team2Color = 'blue'
+const team1ActualColor = `rgba(150, 0, 0, .8)`
+const team2ActualColor = `rgba(0, 0, 150, .8)`
 let gameActive = false
 let player1Score = 0
 let player2Score = 0
@@ -172,6 +174,7 @@ const clearBoard = () => {
     if (fieldSquares.item(i).firstChild) {
       fieldSquares.item(i).firstChild.remove()
     }
+    fieldSquares.item(i).classList.remove('glow-square')
   }
 }
 // Continues game after halftime
@@ -204,7 +207,7 @@ const halfTime = () => {
     continueButton.addEventListener('click', continueGame)
   } else if (player1Score === 1 && player2Score === 1) {
     halfTimePage.style.display = 'flex'
-    halfTimeMessage.innerText = `${team1Name} and ${team2Name} are tied at the end of regulation. We're going to need another half to settle this...`
+    halfTimeMessage.innerText = `${team1Name} and ${team2Name} are tied at the end of regulation. We're going to need another period to settle this...`
     halfScoreTeam1.innerText = player1Score
     halfScoreTeam2.innerText = player2Score
     continueButton.addEventListener('click', continueGame)
@@ -248,14 +251,14 @@ const score = () => {
   if (isPlayer1Turn) {
     instructionsColors()
     instructions.innerText = 'PLAYER 1 SCORES'
-    instructionsContainer.style.backgroundColor = 'darkred'
+    instructionsContainer.style.backgroundColor = team1ActualColor
     endzone2.removeEventListener('click', score)
     player1Score++
     checkForWinner()
   } else {
     instructionsColors()
     instructions.innerText = 'PLAYER 2 SCORES'
-    instructionsContainer.style.backgroundColor = 'darkblue'
+    instructionsContainer.style.backgroundColor = team1ActualColor
     endzone1.removeEventListener('click', score)
     player2Score++
     checkForWinner()
@@ -267,6 +270,9 @@ const checkForScore = () => {
     if (isPlayer1Turn) {
       team1GoalLine.forEach((num) => {
         if (num === currentBallLocation) {
+          for (let i = 0; i < fieldSquares.length; i++) {
+            fieldSquares.item(i).classList.remove('glow-square')
+          }
           endzone2.addEventListener('click', score)
         } else {
           return
@@ -288,9 +294,9 @@ const checkForScore = () => {
 // instructionsColors
 const instructionsColors = () => {
   if (isPlayer1Turn) {
-    instructionsContainer.style.backgroundColor = 'darkred'
+    instructionsContainer.style.backgroundColor = team1ActualColor
   } else {
-    instructionsContainer.style.backgroundColor = 'darkblue'
+    instructionsContainer.style.backgroundColor = team2ActualColor
   }
 }
 /// current team returns a string with the team name of whoever is currently in control
@@ -510,7 +516,7 @@ const removeEventListenersAndResetColor = (arr) => {
     const cellToRemove = fieldSquares[arr[i] - 1]
     if (cellToRemove) {
       cellToRemove.removeEventListener('click', movePiece)
-      cellToRemove.style.backgroundColor = 'green'
+      cellToRemove.classList.remove('glow-square')
     } else {
       continue
     }
@@ -525,13 +531,13 @@ const endTurn = () => {
 }
 const attachDebris = (tile) => {
   const tileAsNumber = parseFloat(tile)
+  tilesWithDebris.push(tileAsNumber)
   let gamePieceTile = fieldSquares[tileAsNumber - 1]
   const firstChild = gamePieceTile.firstChild
   firstChild.remove()
   const debris = document.createElement('div')
   debris.classList.add('debris')
   gamePieceTile.appendChild(debris)
-  tilesWithDebris.push(tileAsNumber)
   updateTackleRadius()
   player1OccupiedCells = player1OccupiedCells.filter(
     (num) => num != tileAsNumber
@@ -565,6 +571,7 @@ const attachBallAfterFumble = (location) => {
 }
 // handles fumble
 const fumble = (arr) => {
+  console.log(arr)
   const randNumber = Math.floor(Math.random() * arr.length)
   let randLocation = parseFloat(arr[randNumber])
   const team1LocationCheck = player1OccupiedCells.reduce((acc, num) => {
@@ -583,12 +590,12 @@ const fumble = (arr) => {
       return acc
     }
   }, -1)
-  if (team1LocationCheck > 0) {
+  if (team1LocationCheck >= 0) {
     player1HasBall = true
     player2HasBall = false
     currentBallLocation = randLocation
     attachBallAfterFumble(randLocation)
-  } else if (team2LocationCheck > 0) {
+  } else if (team2LocationCheck >= 0) {
     player1HasBall = false
     player2HasBall = true
     currentBallLocation = randLocation
@@ -636,12 +643,12 @@ const tackleResult = (player1Rolled, player2Rolled) => {
       attachDebris(tacklerLocation)
       handleAftermath(tackledGamePieceLocation)
     } else if (player1Rolled > player2Rolled) {
-      instructionsContainer.style.backgroundColor = 'darkred'
+      instructionsContainer.style.backgroundColor = team1ActualColor
       instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
       handleAftermathControllerWins(tacklerLocation)
     } else {
-      instructionsContainer.style.backgroundColor = 'darkblue'
+      instructionsContainer.style.backgroundColor = team2ActualColor
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
       handleAftermath(tackledGamePieceLocation)
@@ -653,12 +660,12 @@ const tackleResult = (player1Rolled, player2Rolled) => {
       attachDebris(tacklerLocation)
       handleAftermath(tackledGamePieceLocation)
     } else if (player1Rolled > player2Rolled) {
-      instructionsContainer.style.backgroundColor = 'darkred'
+      instructionsContainer.style.backgroundColor = team1ActualColor
       instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
       handleAftermath(tackledGamePieceLocation)
     } else {
-      instructionsContainer.style.backgroundColor = 'darkblue'
+      instructionsContainer.style.backgroundColor = team2ActualColor
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
       handleAftermathControllerWins(tacklerLocation)
@@ -698,10 +705,10 @@ const handleTackleRoll = () => {
     const player2Rolled = parseFloat(rollAmount2.innerText)
     tackleResult(player1Rolled, player2Rolled)
   } else if (hasPlayer1Rolled) {
-    instructionsContainer.style.backgroundColor = 'darkblue'
+    instructionsContainer.style.backgroundColor = team2ActualColor
     instructions.innerText = `Player 1 rolled a ${rollAmount1.innerText}. Player 2, press the ${team2Color} [ROLL] button to roll...`
   } else if (hasPlayer2Rolled) {
-    instructionsContainer.style.backgroundColor = 'darkred'
+    instructionsContainer.style.backgroundColor = team1ActualColor
     instructions.innerText = `Player 2 rolled a ${rollAmount2.innerText}. Player 1, press the ${team1Color} [ROLL] button to roll...`
   } else {
     instructions.innerText = `Player 1, press the ${team1Color} [ROLL] button to roll. Player 2, press the ${team2Color} [ROLL] button to roll...`
@@ -838,7 +845,7 @@ const handleMove = () => {
     for (let i = 0; i < movesAvailableArray.length; i++) {
       const cellToHighlight = fieldSquares[movesAvailableArray[i] - 1]
       if (cellToHighlight) {
-        cellToHighlight.style.backgroundColor = 'lightgreen'
+        cellToHighlight.classList.add('glow-square')
         cellToHighlight.addEventListener('click', movePiece)
       } else {
         continue

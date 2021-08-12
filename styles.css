@@ -15,6 +15,8 @@ nav {
   display: flex;
   align-items: center;
   height: 3%;
+  background-color: rgb(0, 0, 0, 0.7);
+  box-shadow: 0 0 0.5em 0em white;
 }
 ul {
   display: flex;
@@ -26,6 +28,13 @@ li {
 }
 a {
   text-decoration: none;
+  color: yellow;
+  text-shadow: 0 0 0.125em white, 0 0 0.125em currentColor;
+}
+a:hover {
+  text-decoration: none;
+  color: white;
+  text-shadow: 0 0 0.125em white, 0 0 0.45em currentColor;
 }
 #score-container {
   display: grid;
@@ -33,8 +42,11 @@ a {
   grid-template-rows: 1fr 1fr;
   justify-content: space-around;
   align-items: center;
-  height: 12%;
-  background-color: gray;
+  height: 15%;
+  background-color: rgb(0, 0, 0, 0.7);
+  border: 1px solid white;
+  box-shadow: 0 0 0.5em 0em white;
+  border-radius: 10px;
   margin: 10px 20px;
 }
 .scoreboard-container {
@@ -62,9 +74,20 @@ h3 {
   flex-direction: column;
   align-items: center;
   background-color: black;
-  color: white;
+  border: yellow 1px solid;
+  border-radius: 10%;
+  color: yellow;
+  text-shadow: 0 0 0.5em currentColor;
   width: 50%;
   height: 50%;
+}
+#scoreboard1 {
+  border: red 1px solid;
+  box-shadow: 0 0 1em 0.25em red, inset 0 0 1em 0.25em rgb(255, 0, 0);
+}
+#scoreboard2 {
+  border: blue 1px solid;
+  box-shadow: 0 0 1em 0.25em blue, inset 0 0 1em 0.25em blue;
 }
 #instructions-container {
   display: flex;
@@ -75,11 +98,16 @@ h3 {
   background-color: black;
   color: white;
   padding: 0 10px;
+  box-shadow: 0 0 0.5em 0em white, inset 0 0 1em 0em white;
+  border: black 0px solid;
+  border-radius: 10px;
 }
 #instructions {
   font-size: 20px;
   padding: 0;
+  text-shadow: 0 0 0.5em white;
 }
+
 #buttons-container {
   display: flex;
   justify-content: space-around;
@@ -115,19 +143,19 @@ h3 {
   grid-template-columns: 3fr 30fr 3fr;
   grid-template-rows: 15fr;
   height: 70%;
-  border: 2px solid white;
+  border: 1px solid white;
   margin-top: 20px;
-  box-shadow: 0 0 2em 1em white;
+  box-shadow: 0 0 1em 0.25em white;
 }
 #endzone1 {
   grid-area: 1 / 1 / span 1 / span 1;
   background-color: blue;
-  box-shadow: inset 0 0 2em 1em rgb(0, 0, 70);
+  box-shadow: inset 0 0 2em 1em rgb(0, 0, 100);
 }
 #endzone2 {
   grid-area: 1 / 3 / span 1 / span 1;
   background-color: red;
-  box-shadow: inset 0 0 2em 1em rgb(70, 0, 0);
+  box-shadow: inset 0 0 2em 1em rgb(100, 0, 0);
 }
 #field {
   grid-area: 1 / 2 / span 1 / span 1;
@@ -142,14 +170,19 @@ h3 {
   justify-content: center;
   align-items: center;
   z-index: 4;
-  background-color: green;
-  border: 1px solid black;
+  background-color: rgb(0, 128, 0);
+  border: 1px solid rgb(0, 70, 0);
+  box-shadow: inset 0 0 0.5em 0em rgb(0, 100, 0);
   background-image: url('./images/grass-3448x3448.jpg');
   background-position: center;
   background-repeat: no-repeat;
+  background-blend-mode: lighten;
   background-size: 100% 100%;
   background-clip: padding-box;
   background-color: black;
+}
+.glow-square {
+  box-shadow: inset 0 0 0.5em 0.5em rgb(120, 255, 58);
 }
 .game-piece {
   display: flex;
@@ -161,20 +194,22 @@ h3 {
   height: 30%;
   border: 0.75vmin solid yellow;
   border-radius: 50%;
-  background-color: orange;
+  background-color: rgb(41, 41, 41);
 }
 .game-piece:hover {
-  background-color: darkorange;
+  background-color: black;
 }
 .team1 {
-  border-color: #8b0000;
+  border-color: #dc0000;
+  box-shadow: 0 0 0.25em 0.1em #dc0000;
   align-items: flex-start;
 }
 .team1:hover {
   border-color: rgb(95, 0, 0);
 }
 .team2 {
-  border-color: darkblue;
+  border-color: #0000dc;
+  box-shadow: 0 0 0.25em 0.1em #0000dc;
   align-items: flex-end;
 }
 .team2:hover {
@@ -185,9 +220,15 @@ h3 {
   height: inherit;
   justify-content: center;
   align-items: center;
-  height: 95%;
-  width: 95%;
+  height: 90%;
+  width: 90%;
   z-index: 5;
+  background-image: url('./images/junk.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-clip: padding-box;
+  border-radius: 25%;
   background-color: rgb(89, 27, 27);
 }
 .ball {
@@ -198,7 +239,8 @@ h3 {
   z-index: 6;
   width: 40%;
   height: 20%;
-  border: #ff1493 solid 0.6vmin;
+  border: #ff1493 solid 0.5vmin;
+  box-shadow: 0 0 0.5em 0em #ff1493;
   border-radius: 50%;
   background-color: black;
 }
@@ -222,18 +264,85 @@ button {
 }
 #end-turn-button {
   width: 20%;
+  background-color: yellow;
+  border: yellow 1px outset;
+  box-shadow: 0 0 0.5em 0.25em yellow, inset 0 0 0.5em 0.25em yellow;
+  border-radius: 5%;
+  color: black;
+  text-shadow: 0 0 0.5em currentColor;
+  font-weight: bold;
+}
+#end-turn-button:hover {
+  background-color: black;
+  border: yellow 1px solid;
+  box-shadow: 0 0 1em 0.25em black;
+  color: yellow;
+  text-shadow: 0 0 2em currentColor;
+}
+#end-turn-button:active {
+  background-color: black;
+  border: yellow 1px inset;
+  box-shadow: 0 0 1em 0.25em black;
+  color: yellow;
+  text-shadow: 0 0 2em currentColor;
 }
 #roll-button-1 {
-  background-color: #8b0000;
+  background-color: rgba(150, 0, 0, 1);
+  font-weight: bold;
+  border: rgba(150, 0, 0, 1) 1px outset;
+  border-radius: 5%;
+  box-shadow: 0 0 1em 0.25em rgba(150, 0, 0, 1);
+  color: white;
+  text-shadow: 0 0 2em currentColor;
 }
+#roll-button-1:hover {
+  background-color: white;
+  border: rgba(150, 0, 0, 1) 1px solid;
+  box-shadow: 0 0 1em 0.25em rgba(150, 0, 0, 1);
+  color: rgba(150, 0, 0, 1);
+  text-shadow: 0 0 2em currentColor;
+}
+#roll-button-1:hover > #roll-amount-1 {
+  color: rgba(150, 0, 0, 1);
+}
+#roll-button-1:active {
+  border: rgba(150, 0, 0, 1) 1px inset;
+}
+
 #roll-button-2 {
-  background-color: darkblue;
+  background-color: rgba(0, 0, 150, 1);
+  font-weight: bold;
+  border: rgba(0, 0, 150, 1) 1px outset;
+  border-radius: 5%;
+  box-shadow: 0 0 1em 0.25em rgba(0, 0, 150, 1);
+  color: white;
+  text-shadow: 0 0 2em currentColor;
 }
+#roll-button-2:hover {
+  background-color: white;
+  border: rgba(0, 0, 150, 1) 1px solid;
+  box-shadow: 0 0 1em 0.25em rgba(0, 0, 150, 1);
+  color: rgba(0, 0, 150, 1);
+  text-shadow: 0 0 2em currentColor;
+}
+#roll-button-2:hover > #roll-amount-2 {
+  color: rgba(0, 0, 150, 1);
+}
+#roll-button-2:active {
+  border: rgba(0, 0, 150, 1) 1px inset;
+}
+
 .half-full {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
+  background-color: black;
+  background-image: url('./images/city-bg.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
 #half-time {
   display: none;
@@ -242,7 +351,7 @@ button {
   width: 100%;
   margin: 0;
   z-index: 8;
-  background-color: aquamarine;
+  background-color: black;
 }
 #full-time {
   display: none;
@@ -251,28 +360,63 @@ button {
   width: 100%;
   margin: 0;
   z-index: 10;
-  background-color: aquamarine;
+  background-color: black;
+  background-image: url('./images/city2-bg.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
 .half-full-message {
   font-size: 5vmin;
-  margin: 0 30px;
+  margin: 0 50px;
+  padding: 30px;
+  color: #ff1493;
+  box-shadow: 0 0 0.5em 0.1em #ff1493;
+  box-shadow: 0 0 0.125em 0.125em #ff1493, inset 0 0 0.125em 0.125em #ff1493;
+  text-shadow: 0 0 0.125em currentColor;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.9);
 }
 .half-full-container {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
-  width: 30%;
+  border-radius: 10px;
+  border: yellow 1px solid;
+  box-shadow: 0 0 0.125em 0.125em yellow, inset 0 0 0.125em 0em yellow;
+  background-color: rgba(0, 0, 0, 0.75);
+  width: 50%;
   height: 20%;
-  border: black 2px solid;
 }
 .team-half-full {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 50%;
-  border: black 2px solid;
+  border-radius: 10%;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: yellow;
+  text-shadow: 0 0 0.5em currentColor;
+  width: 20%;
+  border: #ff1493 2px solid;
+}
+#team1-half-container {
+  border: red 1px solid;
+  box-shadow: 0 0 1em 0.25em red, inset 0 0 1em 0.25em red;
+}
+#team2-half-container {
+  border: blue 1px solid;
+  box-shadow: 0 0 1em 0.25em blue, inset 0 0 1em 0.25em blue;
+}
+#team1-full-container {
+  border: red 1px solid;
+  box-shadow: 0 0 1em 0.25em red, inset 0 0 1em 0.25em red;
+}
+#team2-full-container {
+  border: blue 1px solid;
+  box-shadow: 0 0 1em 0.25em blue, inset 0 0 1em 0.25em blue;
 }
 .half-full-team {
   display: flex;
@@ -287,7 +431,6 @@ button {
   font-size: 3vmin;
   padding: 10%;
   margin: 5px 0;
-  border: black 2px solid;
 }
 .half-full-button {
   display: flex;
@@ -302,4 +445,44 @@ button {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
+}
+#instrictions-page-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 80%;
+  padding: 50px;
+  background-color: rgb(0, 0, 0, 0.7);
+  border: 1px solid yellow;
+  box-shadow: 0 0 0.5em 0em yellow;
+  color: yellow;
+  text-shadow: 0 0 0.5em currentColor;
+  font-size: 2vmin;
+  border-radius: 10px;
+  margin: 10px 20px;
+}
+.half-full-button {
+  width: 20%;
+  background-color: yellow;
+  border: yellow 1px outset;
+  box-shadow: 0 0 0.5em 0.25em yellow, inset 0 0 0.5em 0.25em yellow;
+  border-radius: 5%;
+  color: black;
+  text-shadow: 0 0 0.5em currentColor;
+  font-weight: bold;
+}
+.half-full-button:hover {
+  background-color: black;
+  border: yellow 1px solid;
+  box-shadow: 0 0 1em 0.25em black;
+  color: yellow;
+  text-shadow: 0 0 2em currentColor;
+}
+.half-full-button:active {
+  background-color: black;
+  border: yellow 1px inset;
+  box-shadow: 0 0 1em 0.25em black;
+  color: yellow;
+  text-shadow: 0 0 2em currentColor;
 }
