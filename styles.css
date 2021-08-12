@@ -83,10 +83,12 @@ h3 {
 }
 #scoreboard1 {
   border: red 1px solid;
+  background-color: rgba(20, 0, 0, 0.9);
   box-shadow: 0 0 1em 0.25em red, inset 0 0 1em 0.25em rgb(255, 0, 0);
 }
 #scoreboard2 {
   border: blue 1px solid;
+  background-color: rgba(0, 0, 20, 0.9);
   box-shadow: 0 0 1em 0.25em blue, inset 0 0 1em 0.25em blue;
 }
 #instructions-container {
@@ -94,12 +96,13 @@ h3 {
   justify-content: center;
   align-items: center;
   grid-area: 1 / 2 / span 1 / span 1;
-  height: 90%;
+  height: 85%;
   background-color: black;
   color: white;
   padding: 0 10px;
-  box-shadow: 0 0 0.5em 0em white, inset 0 0 1em 0em white;
-  border: black 0px solid;
+  box-shadow: 0 0 0.5em 0em rgba(255, 255, 255, 0.5),
+    inset 0 0 1em 0em rgba(255, 255, 255, 0.5);
+  border: white 0px solid;
   border-radius: 10px;
 }
 #instructions {
@@ -143,9 +146,10 @@ h3 {
   grid-template-columns: 3fr 30fr 3fr;
   grid-template-rows: 15fr;
   height: 70%;
+  margin: 0 10px;
   border: 1px solid white;
   margin-top: 20px;
-  box-shadow: 0 0 1em 0.25em white;
+  box-shadow: 0 0 1em 0.25em white, inset 0 0 2em 1em white;
 }
 #endzone1 {
   grid-area: 1 / 1 / span 1 / span 1;

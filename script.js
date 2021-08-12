@@ -532,9 +532,17 @@ const endTurn = () => {
 const attachDebris = (tile) => {
   const tileAsNumber = parseFloat(tile)
   tilesWithDebris.push(tileAsNumber)
+  if (tile === currentBallLocation) {
+    const fumbleArray = fumbleRadiusOfPosition(tile)
+    fumble(fumbleArray)
+    isBallInvolvedInTackle = false
+  }
   let gamePieceTile = fieldSquares[tileAsNumber - 1]
   const firstChild = gamePieceTile.firstChild
   firstChild.remove()
+  if (firstChild) {
+    firstChild.remove()
+  }
   const debris = document.createElement('div')
   debris.classList.add('debris')
   gamePieceTile.appendChild(debris)
@@ -568,10 +576,10 @@ const attachBallAfterFumble = (location) => {
   const ball = document.getElementById('#ball')
   gamePiece.append(ball)
   checkIfGamePieceHasBall()
+  updateBallLocation()
 }
 // handles fumble
 const fumble = (arr) => {
-  console.log(arr)
   const randNumber = Math.floor(Math.random() * arr.length)
   let randLocation = parseFloat(arr[randNumber])
   const team1LocationCheck = player1OccupiedCells.reduce((acc, num) => {
@@ -611,23 +619,19 @@ const fumble = (arr) => {
 const handleAftermath = (location) => {
   resetTackleRolls()
   if (location === currentBallLocation) {
-    const fumbleArray = fumbleRadiusOfPosition(location)
-    fumble(fumbleArray)
-    isBallInvolvedInTackle = false
+    // const fumbleArray = fumbleRadiusOfPosition(location)
+    // fumble(fumbleArray)
+    // isBallInvolvedInTackle = false
     instructions.innerText = `The controlling player was destroyed and the ball was fumbled to a random square. Press [End Turn] button to end turn...`
   }
   instructionsColors()
-  instructions.innerText = `The player was destroyed. Press [End Turn] button to end turn...`
+  // instructions.innerText = `The player was destroyed. Press [End Turn] button to end turn...`
   endTurnButton.addEventListener('click', endTurn)
 }
 // Handlesif controlling player is not destroyed
 const handleAftermathControllerWins = (location) => {
   resetTackleRolls()
-  if (location === currentBallLocation) {
-    const fumbleArray = fumbleRadiusOfPosition(location)
-    fumble(fumbleArray)
-    isBallInvolvedInTackle = false
-  }
+
   endTurnButton.removeEventListener('click', endTurn)
   instructionsColors()
   instructions.innerText = `The controlling player survived the tackle. Press [CONTINUE] button to continue turn...`
@@ -915,6 +919,7 @@ const placeBall = (ballLocation) => {
   gameBall.classList.add('ball')
   gameBall.id = 'ball'
   fieldSquares[parsedBallLocation - 1].appendChild(gameBall)
+  updateBallLocation()
 }
 
 // Resets entire game
