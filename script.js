@@ -30,7 +30,12 @@ let player2StartingPositions = [
   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
 ]
 player2StartingPositions = player2StartingPositions.map((num) => num - 8)
-
+const team2GoalLine = [
+  1, 31, 61, 91, 121, 151, 181, 211, 241, 271, 301, 331, 361, 391, 421
+]
+const team1GoalLine = [
+  30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450
+]
 let tackleRadiusTeam1 = []
 let tackleRadiusTeam2 = []
 let currentGamePiece = undefined
@@ -48,6 +53,7 @@ let tacklerLocation = 0
 // ball location at start. Will change during gameplay
 const startingBallLocation = 226
 let currentBallLocation = 226
+let isCurrentGamePieceCarryingBall = false
 let player1HasBall = false
 let player2HasBall = false
 let isBallInvolvedInTackle = false
@@ -55,12 +61,61 @@ let isBallInvolvedInTackle = false
 let field = document.querySelector('#field')
 let fieldSquares = field.children
 const instructions = document.querySelector('#instructions')
+const instructionsContainer = document.querySelector('#instructions-container')
 const endTurnButton = document.querySelector('#end-turn-button')
 const rollButton1 = document.querySelector('#roll-button-1')
 const rollButton2 = document.querySelector('#roll-button-2')
 const rollAmount1 = document.querySelector('#roll-amount-1')
 const rollAmount2 = document.querySelector('#roll-amount-2')
+const endzone1 = document.querySelector('#endzone1')
+const endzone2 = document.querySelector('#endzone2')
 /// Functions ///
+// SCORE
+const score = () => {
+  if (isPlayer1Turn) {
+    instructionsColors()
+    instructions.innerText = 'PLAYER 1 SCORES'
+    instructionsContainer.style.backgroundColor = 'darkred'
+    endzone2.removeEventListener('click', score)
+  } else {
+    instructionsColors()
+    instructions.innerText = 'PLAYER 2 SCORES'
+    instructionsContainer.style.backgroundColor = 'darkblue'
+    endzone1.removeEventListener('click', score)
+  }
+}
+// Checks forscore if player has ball and is moving
+const checkForScore = () => {
+  if (currentMovesLeft > 0) {
+    if (isPlayer1Turn) {
+      team1GoalLine.forEach((num) => {
+        if (num === currentBallLocation) {
+          endzone2.addEventListener('click', score)
+        } else {
+          return
+        }
+      })
+    } else {
+      team2GoalLine.forEach((num) => {
+        if (num === currentBallLocation) {
+          endzone1.addEventListener('click', score)
+        } else {
+          return
+        }
+      })
+    }
+  } else {
+    return
+  }
+}
+// instructionsColors
+const instructionsColors = () => {
+  if (isPlayer1Turn) {
+    instructionsContainer.style.backgroundColor = 'darkred'
+  } else {
+    instructionsContainer.style.backgroundColor = 'darkblue'
+  }
+}
 /// current team returns a string with the team name of whoever is currently in control
 const currentTeam = () => {
   if (isPlayer1Turn) {
@@ -168,6 +223,8 @@ const toggleTurn = () => {
   }
   updatePositions()
   setGamePieceEventListeners()
+  checkIfGamePieceHasBall()
+  currentMovesLeft = 0
 }
 // Creates all 450 unique game squares
 const createField = () => {
@@ -223,6 +280,7 @@ const roll = (diceSize) => {
 // Fires after roll button clicked for movement
 const movementRoll = () => {
   currentRoll = roll(20)
+  instructionsColors()
   instructions.innerText = `You rolled a ${currentRoll}!`
   if (isPlayer1Turn) {
     rollButton1.removeEventListener('click', movementRoll)
@@ -236,6 +294,7 @@ const movementRoll = () => {
 }
 // Needed to handle roll after player selects piece to move
 const handleMovementRoll = () => {
+  instructionsColors()
   instructions.innerText = 'Please press the roll button to roll your D20...'
   if (isPlayer1Turn) {
     rollButton1.addEventListener('click', movementRoll)
@@ -325,6 +384,7 @@ const attachBallAfterFumble = (location) => {
   const gamePiece = gamePieceLocation.firstElementChild
   const ball = document.getElementById('#ball')
   gamePiece.append(ball)
+  checkIfGamePieceHasBall()
 }
 // handles fumble
 const fumble = (arr) => {
@@ -361,6 +421,7 @@ const fumble = (arr) => {
     placeBall(randLocation)
   }
   updateBallLocation()
+  checkIfGamePieceHasBall()
 }
 // Handles a draw or if controlling player is destroyed
 const handleAftermath = (location) => {
@@ -371,6 +432,7 @@ const handleAftermath = (location) => {
     isBallInvolvedInTackle = false
     instructions.innerText = `The controlling player was destroyed and the ball was fumbled to a random square. Press [End Turn] button to end turn...`
   }
+  instructionsColors()
   instructions.innerText = `The player was destroyed. Press [End Turn] button to end turn...`
   endTurnButton.addEventListener('click', endTurn)
 }
@@ -383,6 +445,7 @@ const handleAftermathControllerWins = (location) => {
     isBallInvolvedInTackle = false
   }
   endTurnButton.removeEventListener('click', endTurn)
+  instructionsColors()
   instructions.innerText = `The controlling player survived the tackle. Press [CONTINUE] button to continue turn...`
   endTurnButton.innerText = 'CONTINUE'
   endTurnButton.addEventListener('click', continueMove)
@@ -396,10 +459,12 @@ const tackleResult = (player1Rolled, player2Rolled) => {
       attachDebris(tacklerLocation)
       handleAftermath(tackledGamePieceLocation)
     } else if (player1Rolled > player2Rolled) {
+      instructionsContainer.style.backgroundColor = 'darkred'
       instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
       handleAftermathControllerWins(tacklerLocation)
     } else {
+      instructionsContainer.style.backgroundColor = 'darkblue'
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
       handleAftermath(tackledGamePieceLocation)
@@ -411,10 +476,12 @@ const tackleResult = (player1Rolled, player2Rolled) => {
       attachDebris(tacklerLocation)
       handleAftermath(tackledGamePieceLocation)
     } else if (player1Rolled > player2Rolled) {
+      instructionsContainer.style.backgroundColor = 'darkred'
       instructions.innerText = `Player 1 got the best of player 2. That tile is now cluttered with debris.`
       attachDebris(tackledGamePieceLocation)
       handleAftermath(tackledGamePieceLocation)
     } else {
+      instructionsContainer.style.backgroundColor = 'darkblue'
       instructions.innerText = `Player 2 got the best of player 1. That tile is now cluttered with debris.`
       attachDebris(tacklerLocation)
       handleAftermathControllerWins(tacklerLocation)
@@ -454,11 +521,13 @@ const handleTackleRoll = () => {
     const player2Rolled = parseFloat(rollAmount2.innerText)
     tackleResult(player1Rolled, player2Rolled)
   } else if (hasPlayer1Rolled) {
+    instructionsContainer.style.backgroundColor = 'darkblue'
     instructions.innerText = `Player 1 rolled a ${rollAmount1.innerText}. Player 2, press the ${team2Color} [ROLL] button to roll...`
   } else if (hasPlayer2Rolled) {
+    instructionsContainer.style.backgroundColor = 'darkred'
     instructions.innerText = `Player 2 rolled a ${rollAmount2.innerText}. Player 1, press the ${team1Color} [ROLL] button to roll...`
   } else {
-    instructions.innerText = `Player 2, press the ${team1Color} [ROLL] button to roll. Player 2, press the ${team2Color} [ROLL] button to roll...`
+    instructions.innerText = `Player 1, press the ${team1Color} [ROLL] button to roll. Player 2, press the ${team2Color} [ROLL] button to roll...`
     rollButton1.addEventListener('click', tackleRoll1)
     rollButton2.addEventListener('click', tackleRoll2)
   }
@@ -494,6 +563,7 @@ const attachBallToGamePiece = (gamePiece) => {
   }
   const ball = document.querySelector('#ball')
   gamePiece.append(ball)
+  checkIfGamePieceHasBall()
 }
 // Checks for ball before each move
 const checkForBall = (square) => {
@@ -510,12 +580,17 @@ const movePiece = (event) => {
   if (checkForBall(squareMovedTo)) {
     attachBallToGamePiece(currentGamePiece)
     event.target.appendChild(currentGamePiece)
+    checkIfGamePieceHasBall()
   } else {
     event.target.appendChild(currentGamePiece)
+    checkIfGamePieceHasBall()
   }
   currentMovesLeft -= 1
   updatePositions()
   updateBallLocation()
+  if (isCurrentGamePieceCarryingBall) {
+    checkForScore()
+  }
   let tacklerArrayLocation = checkForTackle(squareMovedTo)
   tacklerArrayLocation = parseFloat(tacklerArrayLocation)
   if (tacklerArrayLocation >= 0) {
@@ -574,9 +649,11 @@ const handleMove = () => {
   let squareLocation = fieldSquare.dataset.position
   squareMovedFrom = squareLocation
   if (currentMovesLeft === 0) {
+    instructionsColors()
     instructions.innerText = `You have ${currentMovesLeft} moves left. Press [End Turn] button to end turn...`
     endTurnButton.addEventListener('click', endTurn)
   } else {
+    instructionsColors()
     instructions.innerText = `You have ${currentMovesLeft} moves left. Make your move or press the [End Turn] button to end turn...`
     endTurnButton.addEventListener('click', endTurn)
     let movesAvailableArray = updateMovesAvailableArray(squareLocation)
@@ -592,11 +669,22 @@ const handleMove = () => {
     }
   }
 }
+// checks if clicked game piece has the ball returns true/false
+const checkIfGamePieceHasBall = () => {
+  if (currentGamePiece.firstChild) {
+    isCurrentGamePieceCarryingBall = true
+    return true
+  } else {
+    isCurrentGamePieceCarryingBall = false
+    return false
+  }
+}
 // Run when a ggame piece is clicked, then moves to handle roll
 const gamePieceClicked = (event) => {
   resetRollText()
   const eventTarget = event.target
   currentGamePiece = eventTarget
+  checkIfGamePieceHasBall()
   squareMovedFrom = event.target.parentNode.dataset.position
   if (isPlayer1Turn) {
     for (let i = 0; i < player1OccupiedCells.length; i++) {
@@ -613,6 +701,7 @@ const gamePieceClicked = (event) => {
   }
 }
 const setGamePieceEventListeners = () => {
+  instructionsColors()
   instructions.innerText = `It's ${currentTeam()}'s turn.! Pick a ${currentColor()} game piece to start move...`
   if (isPlayer1Turn) {
     for (let i = 0; i < player1OccupiedCells.length; i++) {
