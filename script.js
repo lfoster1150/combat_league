@@ -70,6 +70,12 @@ const rollAmount2 = document.querySelector('#roll-amount-2')
 const endzone1 = document.querySelector('#endzone1')
 const endzone2 = document.querySelector('#endzone2')
 /// Functions ///
+/// Can use space bar to end/continue turn
+const spaceBar = (event) => {
+  if (event.key === ' ') {
+    endTurnButton.click()
+  }
+}
 // SCORE
 const score = () => {
   if (isPlayer1Turn) {
@@ -746,3 +752,5 @@ const startGame = () => {
 // Starts game on reload
 startGame()
 /// Event Listeners ///
+
+document.addEventListener('keydown', spaceBar)
