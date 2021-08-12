@@ -226,6 +226,7 @@ button {
 }
 .half-full-message {
   font-size: 5vmin;
+  margin: 0 30px;
 }
 .half-full-container {
   display: flex;
@@ -254,6 +255,22 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  font-size: 3vmin;
   padding: 10%;
+  margin: 5px 0;
   border: black 2px solid;
+}
+.half-full-button {
+  display: flex;
+  margin: 30px;
+  width: 150px;
+  height: 50px;
+  background-color: black;
+  border: yellow 2px solid;
+  border-radius: 10%;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }

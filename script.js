@@ -71,6 +71,9 @@ const endzone1 = document.querySelector('#endzone1')
 const endzone2 = document.querySelector('#endzone2')
 const halfTimePage = document.querySelector('#half-time')
 const fullTimePage = document.querySelector('#full-time')
+const halfTimeMessage = document.querySelector('#half-time-message')
+const halfScoreTeam1 = document.querySelector('#half-score-team1')
+const halfScoreTeam2 = document.querySelector('#half-score-team2')
 /// Functions ///
 /// Can use space bar to end/continue turn
 const spaceBar = (event) => {
@@ -78,16 +81,36 @@ const spaceBar = (event) => {
     endTurnButton.click()
   }
 }
-const halfTime = () => {}
+// testing for half time
+player1Score = 0
+player2Score = 1
+
+// displays half time screen
+const halfTime = () => {
+  if (player1Score === 1 && player2Score === 0) {
+    halfTimeMessage.innerText = `${team1Name} got the early lead! Let's see what happens in the second half...`
+    halfScoreTeam1.innerText = player1Score
+  } else if (player1Score === 0 && player2Score === 1) {
+    halfTimeMessage.innerText = `${team2Name} got the early lead! Let's see what happens in the second half...`
+    halfScoreTeam2.innerText = player2Score
+  } else if (player1Score === 1 && player2Score === 1) {
+    halfTimeMessage.innerText = `${team1Name} and ${team2Name} are tied at the end of regulation. We're going to need another half to settle this...`
+    halfScoreTeam1.innerText = player1Score
+    halfScoreTeam2.innerText = player2Score
+  } else {
+    console.log('Something went wrong at halftime')
+  }
+}
 // Checks for winner. If no winner throws to halftime screen
 const checkForWinner = () => {
   if (player1Score > 1 || player2Score > 1) {
     // throw to winner screen
   } else {
     halfTime()
-    // throw to half time scene
   }
 }
+// testing for half time
+checkForWinner()
 // SCORE
 const score = () => {
   if (isPlayer1Turn) {
