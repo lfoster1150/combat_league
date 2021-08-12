@@ -69,11 +69,23 @@ const rollAmount1 = document.querySelector('#roll-amount-1')
 const rollAmount2 = document.querySelector('#roll-amount-2')
 const endzone1 = document.querySelector('#endzone1')
 const endzone2 = document.querySelector('#endzone2')
+const halfTimePage = document.querySelector('#half-time')
+const fullTimePage = document.querySelector('#full-time')
 /// Functions ///
 /// Can use space bar to end/continue turn
 const spaceBar = (event) => {
   if (event.key === ' ') {
     endTurnButton.click()
+  }
+}
+const halfTime = () => {}
+// Checks for winner. If no winner throws to halftime screen
+const checkForWinner = () => {
+  if (player1Score > 1 || player2Score > 1) {
+    // throw to winner screen
+  } else {
+    halfTime()
+    // throw to half time scene
   }
 }
 // SCORE
@@ -83,11 +95,15 @@ const score = () => {
     instructions.innerText = 'PLAYER 1 SCORES'
     instructionsContainer.style.backgroundColor = 'darkred'
     endzone2.removeEventListener('click', score)
+    player1Score++
+    checkForWinner()
   } else {
     instructionsColors()
     instructions.innerText = 'PLAYER 2 SCORES'
     instructionsContainer.style.backgroundColor = 'darkblue'
     endzone1.removeEventListener('click', score)
+    player2Score++
+    checkForWinner()
   }
 }
 // Checks forscore if player has ball and is moving

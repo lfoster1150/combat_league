@@ -206,3 +206,54 @@ button {
 #roll-button-2 {
   background-color: darkblue;
 }
+#half-time {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  z-index: 8;
+  background-color: aquamarine;
+}
+#full-time {
+  z-index: 10;
+  display: none;
+}
+.half-full {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.half-full-message {
+  font-size: 5vmin;
+}
+.half-full-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 30%;
+  height: 20%;
+  border: black 2px solid;
+}
+.team-half-full {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  border: black 2px solid;
+}
+.half-full-team {
+  display: flex;
+  font-size: 2vmin;
+  margin-bottom: 0;
+}
+.half-full-score {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10%;
+  border: black 2px solid;
+}
