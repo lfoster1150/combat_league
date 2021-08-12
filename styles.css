@@ -4,6 +4,11 @@ body {
   justify-content: start;
   height: 100vh;
   margin: 0;
+  background-image: url('./images/concrete3-bg.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
   background-color: black;
 }
 nav {
@@ -13,22 +18,29 @@ nav {
 }
 ul {
   display: flex;
+  list-style: none;
 }
 li {
   margin: 0 30px;
+  font-size: 20px;
+}
+a {
+  text-decoration: none;
 }
 #score-container {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: 1fr 1fr;
   justify-content: space-around;
-  align-items: flex-end;
-  height: 15%;
+  align-items: center;
+  height: 12%;
   background-color: gray;
+  margin: 10px 20px;
 }
 .scoreboard-container {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 #scoreboard1-container {
   grid-area: 1 / 1 / span 2 / span 1;
@@ -103,19 +115,24 @@ h3 {
   grid-template-columns: 3fr 30fr 3fr;
   grid-template-rows: 15fr;
   height: 70%;
-  border: 3px solid purple;
+  border: 2px solid white;
+  margin-top: 20px;
+  box-shadow: 0 0 2em 1em white;
 }
 #endzone1 {
   grid-area: 1 / 1 / span 1 / span 1;
   background-color: blue;
+  box-shadow: inset 0 0 2em 1em rgb(0, 0, 70);
 }
 #endzone2 {
   grid-area: 1 / 3 / span 1 / span 1;
   background-color: red;
+  box-shadow: inset 0 0 2em 1em rgb(70, 0, 0);
 }
 #field {
   grid-area: 1 / 2 / span 1 / span 1;
   display: grid;
+  height: 100%;
   grid-template-columns: repeat(30, 1fr);
   grid-template-rows: repeat(15, 1fr);
   background-color: gray;
@@ -127,6 +144,12 @@ h3 {
   z-index: 4;
   background-color: green;
   border: 1px solid black;
+  background-image: url('./images/grass-3448x3448.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-clip: padding-box;
+  background-color: black;
 }
 .game-piece {
   display: flex;
@@ -206,7 +229,14 @@ button {
 #roll-button-2 {
   background-color: darkblue;
 }
+.half-full {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 #half-time {
+  display: none;
   position: absolute;
   height: 100%;
   width: 100%;
@@ -215,14 +245,13 @@ button {
   background-color: aquamarine;
 }
 #full-time {
-  z-index: 10;
   display: none;
-}
-.half-full {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  z-index: 10;
+  background-color: aquamarine;
 }
 .half-full-message {
   font-size: 5vmin;

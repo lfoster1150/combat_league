@@ -7,13 +7,10 @@ let gameActive = false
 let player1Score = 0
 let player2Score = 0
 let currentRoll = undefined
-let ballLocation = 226
 let isPlayer1Turn = true
 let isPlayer2Turn = false
-let previousRadius = []
 let player1OccupiedCells = []
 let player2OccupiedCells = []
-let currentTurnMovesRemaining = 0 // Will probably need to move inside a function ( counts down after every movement) //
 // Starting Positions for actual game
 // let player1StartingPositions = [
 //   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
@@ -51,7 +48,7 @@ let tackledGamePieceLocation = 0
 let tacklerLocation = 0
 // Global variables used for ball logic
 // ball location at start. Will change during gameplay
-const startingBallLocation = 226
+let startingBallLocation = 226
 let currentBallLocation = 226
 let isCurrentGamePieceCarryingBall = false
 let player1HasBall = false
@@ -69,12 +66,19 @@ const rollAmount1 = document.querySelector('#roll-amount-1')
 const rollAmount2 = document.querySelector('#roll-amount-2')
 const endzone1 = document.querySelector('#endzone1')
 const endzone2 = document.querySelector('#endzone2')
+const score1 = document.querySelector('#score1')
+const score2 = document.querySelector('#score2')
 const halfTimePage = document.querySelector('#half-time')
 const fullTimePage = document.querySelector('#full-time')
 const halfTimeMessage = document.querySelector('#half-time-message')
 const halfScoreTeam1 = document.querySelector('#half-score-team1')
 const halfScoreTeam2 = document.querySelector('#half-score-team2')
+const fullTimeMessage = document.querySelector('#full-time-message')
+const fullScoreTeam1 = document.querySelector('#full-score-team1')
+const fullScoreTeam2 = document.querySelector('#full-score-team2')
 const continueButton = document.querySelector('#continue')
+const replayButton = document.querySelector('#replay')
+//TESTING VARIABLES
 /// Functions ///
 /// Can use space bar to end/continue turn
 const spaceBar = (event) => {
@@ -82,9 +86,86 @@ const spaceBar = (event) => {
     endTurnButton.click()
   }
 }
-// testing for half time
-player1Score = 0
-player2Score = 1
+// Updates score
+const updateScore = () => {
+  score1.innerText = player1Score
+  score2.innerText = player2Score
+}
+// Sets who's turn it is based on who scored last, and a random coin flip for overtime
+const checkForWhosTurn = () => {
+  if (player1Score === 1 && player2Score === 0) {
+    isPlayer1Turn = false
+    isPlayer2Turn = true
+    startingBallLocation = 225
+  } else if (player1Score === 0 && player2Score === 1) {
+    isPlayer1Turn = true
+    isPlayer2Turn = false
+    startingBallLocation = 226
+  } else if (player1Score === 1 && player2Score === 1) {
+    let coinFlip = Math.floor(Math.random() * 2)
+    if (coinFlip === 1) {
+      isPlayer1Turn = true
+      isPlayer2Turn = false
+      startingBallLocation = 226
+    } else {
+      isPlayer1Turn = false
+      isPlayer2Turn = true
+      startingBallLocation = 225
+    }
+  } else {
+    console.log('Something went wrong at checkForWhosTurn')
+  }
+}
+// resets global variables at halftime
+const resetValuesHalfTime = () => {
+  currentRoll = 0
+  checkForWhosTurn()
+  player1OccupiedCells = player1StartingPositions
+  player2OccupiedCells = player2StartingPositions
+  tackleRadiusTeam1 = []
+  tackleRadiusTeam2 = []
+  currentGamePiece = undefined
+  currentMovesLeft = 0
+  moveRadiusToBeRemoved = []
+  squareMovedFrom = 0
+  squareMovedTo = 0
+  tilesWithDebris = []
+  hasPlayer1Rolled = false
+  hasPlayer2Rolled = false
+  tackledGamePieceLocation = 0
+  tacklerLocation = 0
+  currentBallLocation = startingBallLocation
+  isCurrentGamePieceCarryingBall = false
+  player1HasBall = false
+  player2HasBall = false
+  isBallInvolvedInTackle = false
+}
+const resetValuesFullTime = () => {
+  currentRoll = 0
+  player1Score = 0
+  player2Score = 0
+  isPlayer1Turn = true
+  isPlayer2Turn = false
+  player1OccupiedCells = player1StartingPositions
+  player2OccupiedCells = player2StartingPositions
+  tackleRadiusTeam1 = []
+  tackleRadiusTeam2 = []
+  currentGamePiece = undefined
+  currentMovesLeft = 0
+  moveRadiusToBeRemoved = []
+  squareMovedFrom = 0
+  squareMovedTo = 0
+  tilesWithDebris = []
+  hasPlayer1Rolled = false
+  hasPlayer2Rolled = false
+  tackledGamePieceLocation = 0
+  tacklerLocation = 0
+  currentBallLocation = startingBallLocation
+  isCurrentGamePieceCarryingBall = false
+  player1HasBall = false
+  player2HasBall = false
+  isBallInvolvedInTackle = false
+}
 // clears board of game pieces and ball
 const clearBoard = () => {
   for (let i = 0; i < fieldSquares.length; i++) {
@@ -98,19 +179,31 @@ const continueGame = () => {
   continueButton.removeEventListener('click', continueGame)
   clearBoard()
   halfTimePage.style.display = 'none'
-  startGame()
+  startGameAfterHalf()
+}
+// Starts game over
+const startGameOver = () => {
+  resetValuesFullTime()
+  replayButton.removeEventListener('click', startGameOver)
+  clearBoard()
+  fullTimePage.style.display = 'none'
+  resetGame()
 }
 // displays half time screen
 const halfTime = () => {
+  resetValuesHalfTime()
   if (player1Score === 1 && player2Score === 0) {
+    halfTimePage.style.display = 'flex'
     halfTimeMessage.innerText = `${team1Name} got the early lead! Let's see what happens in the second half...`
     halfScoreTeam1.innerText = player1Score
     continueButton.addEventListener('click', continueGame)
   } else if (player1Score === 0 && player2Score === 1) {
+    halfTimePage.style.display = 'flex'
     halfTimeMessage.innerText = `${team2Name} got the early lead! Let's see what happens in the second half...`
     halfScoreTeam2.innerText = player2Score
     continueButton.addEventListener('click', continueGame)
   } else if (player1Score === 1 && player2Score === 1) {
+    halfTimePage.style.display = 'flex'
     halfTimeMessage.innerText = `${team1Name} and ${team2Name} are tied at the end of regulation. We're going to need another half to settle this...`
     halfScoreTeam1.innerText = player1Score
     halfScoreTeam2.innerText = player2Score
@@ -119,16 +212,37 @@ const halfTime = () => {
     console.log('Something went wrong at halftime')
   }
 }
+// displays full time screen
+const fullTime = () => {
+  if (player1Score === 2) {
+    fullTimePage.style.display = 'flex'
+    const capsTeam1 = team1Name.toUpperCase()
+    fullTimeMessage.innerText = `${capsTeam1} WINS!`
+    fullScoreTeam1.innerText = player1Score
+    replayButton.addEventListener('click', startGameOver)
+  } else if (player2Score === 2) {
+    fullTimePage.style.display = 'flex'
+    const capsTeam2 = team2Name.toUpperCase()
+    fullTimeMessage.innerText = `${capsTeam2} WINS!`
+    fullScoreTeam2.innerText = player2Score
+    replayButton.addEventListener('click', startGameOver)
+  } else {
+    console.log('Something went wrong at fulltime')
+  }
+}
 // Checks for winner. If no winner throws to halftime screen
 const checkForWinner = () => {
+  updateScore()
   if (player1Score > 1 || player2Score > 1) {
-    // throw to winner screen
+    fullTime()
   } else {
     halfTime()
   }
 }
 // testing for half time
-checkForWinner()
+// player1Score = 2
+// player2Score = 1
+// checkForWinner()
 // SCORE
 const score = () => {
   if (isPlayer1Turn) {
@@ -795,13 +909,29 @@ const placeBall = (ballLocation) => {
   gameBall.id = 'ball'
   fieldSquares[parsedBallLocation - 1].appendChild(gameBall)
 }
-// testing function. Remove after
+
 // Resets entire game
-const resetGame = () => {}
+const resetGame = () => {
+  resetOccupiedCells()
+  boardSetup()
+  updateScore()
+  placeBall(startingBallLocation)
+  setGamePieceEventListeners()
+  initializeTackleRadius()
+}
 const startGame = () => {
   resetOccupiedCells()
   createField()
   boardSetup()
+  updateScore()
+  placeBall(startingBallLocation)
+  setGamePieceEventListeners()
+  initializeTackleRadius()
+}
+const startGameAfterHalf = () => {
+  resetOccupiedCells()
+  boardSetup()
+  updateScore()
   placeBall(startingBallLocation)
   setGamePieceEventListeners()
   initializeTackleRadius()
