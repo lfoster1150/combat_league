@@ -70,6 +70,8 @@ The Trello board used to plan and this project and track development can be view
 
 ##### Pictures/Textures Info: [Metal](https://unsplash.com/s/photos/metal) | [Grass](https://freestocktextures.com/search/?q=grass) | [Futuristic City](https://unsplash.com/s/photos/future-city) | [Junk](https://unsplash.com/s/photos/junk) | [Concrete](https://freestocktextures.com/search/?q=concrete)
 
+##### Adds screenshot to Linkedin link: [Medium](https://medium.com/@jamesyhiggs/how-to-add-thumbnail-images-to-the-featured-section-of-your-linkedin-profile-for-web-apps-sites-917346235932)
+
 ##### HTML Info: [WS3](https://www.w3schools.com/html/default.asp)
 
 ##### CSS Info: [WS3](https://www.w3schools.com/css/default.asp)
