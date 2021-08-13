@@ -1,6 +1,6 @@
-# Combat League Football
+# Combat League
 
-## Date: 08/06/2021
+## Date: 08/13/2021
 
 ### By: Luke Foster
 
@@ -10,7 +10,7 @@
 
 ### **_Description_**
 
-A web app interpretation of an underrated futuristic football board game from the early 2000s.
+A web app interpretation of an underrated futuristic football strategy board game **_Battleball_** from the early 2000s. The project was originally created in four days as part of the General Assembly SEI program in order to test and showcase skills in HTML, CSS, and Javascript.
 
 ---
 
@@ -19,15 +19,15 @@ A web app interpretation of an underrated futuristic football board game from th
 - HTML
 - CSS
 - Javascript
-  - Sub-item 1
-  - Sub-item 2
-- Technology 3
+- Surge
 
 ---
 
 ### **_Getting Started_**
 
-COMING SOON...
+Just follow the link below, grab a friend, and have fun! Instructions for the game can be found in the _Instructions_ section of the site. Additionally, instructions are given at the top of the scoreboard before each play.
+
+the project was deployed using Surge and can be viewed [here](combat-league.surge.sh).
 
 The Trello board used to plan and this project and track development can be viewed [here](https://trello.com/b/IUpE8Hr9/combatleaguejs).
 
@@ -35,24 +35,40 @@ The Trello board used to plan and this project and track development can be view
 
 ### **_Screen Shots_**
 
-##### Screen Shot 1
+### Pre-game
 
-![Screen Shot 1](link)
+![Pre-game](./screenshots/ss1.png)
 
-##### Screen Shot 2
+#
 
-![Screen Shot 2](link)
+### Action Shot
+
+![Action Shot](./screenshots/ss2.png)
+
+#
+
+### Instructions Page
+
+![Instructions Page](./screenshots/ss3.png)
+
+##
 
 ### **_Future Updates_**
 
-- [ ] Future Update 1
-- [ ] Future Update 2
-- [x] Completed
-- [x] ~~Strikethrough~~
+- [ ] Structure and functionality at bottom of page including injury list and restart game button.
+- [ ] Basic CPU opponent
+- [ ] Add classes that have varrying dice sizes, positions, names, and functionality.
+- [ ] Use a public API to randomly generate names.
 
 ### **_Credits_**
 
 ##### Original Game Info: [BGG](https://boardgamegeek.com/boardgame/6795/battleball)
+
+##### Keyboard Events Info: [tutorialspoint](https://www.tutorialspoint.com/how-to-trigger-a-button-click-on-keyboard-enter-with-javascript)
+
+##### Neon Info: [CSS-Tricks](https://css-tricks.com/how-to-create-neon-text-with-css/) | [CodePen By Kevin](https://codepen.io/kevinpowell/pen/QWdRzON)
+
+##### Pictures/Textures Info: [Metal](https://unsplash.com/s/photos/metal) | [Grass](https://freestocktextures.com/search/?q=grass) | [Futuristic City](https://unsplash.com/s/photos/future-city) | [Junk](https://unsplash.com/s/photos/junk) | [Concrete](https://freestocktextures.com/search/?q=concrete)
 
 ##### HTML Info: [WS3](https://www.w3schools.com/html/default.asp)
 

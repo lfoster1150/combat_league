@@ -14,21 +14,23 @@ let isPlayer2Turn = false
 let player1OccupiedCells = []
 let player2OccupiedCells = []
 // Starting Positions for actual game
-// let player1StartingPositions = [
-//   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
-// ]
-// let player2StartingPositions = [
-//   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
-// ]
-// Starting positions for testing
 let player1StartingPositions = [
   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
 ]
-player1StartingPositions = player1StartingPositions.map((num) => num + 8)
+player1StartingPositions = player1StartingPositions.map((num) => num + 3)
 let player2StartingPositions = [
   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
 ]
-player2StartingPositions = player2StartingPositions.map((num) => num - 8)
+player2StartingPositions = player2StartingPositions.map((num) => num - 3)
+// Starting positions for testing
+// let player1StartingPositions = [
+//   35, 125, 215, 305, 395, 33, 123, 213, 303, 393, 211
+// ]
+// player1StartingPositions = player1StartingPositions.map((num) => num + 8)
+// let player2StartingPositions = [
+//   56, 146, 236, 326, 416, 58, 148, 238, 328, 418, 240
+// ]
+// player2StartingPositions = player2StartingPositions.map((num) => num - 8)
 const team2GoalLine = [
   1, 31, 61, 91, 121, 151, 181, 211, 241, 271, 301, 331, 361, 391, 421
 ]
@@ -80,7 +82,6 @@ const fullScoreTeam1 = document.querySelector('#full-score-team1')
 const fullScoreTeam2 = document.querySelector('#full-score-team2')
 const continueButton = document.querySelector('#continue')
 const replayButton = document.querySelector('#replay')
-//TESTING VARIABLES
 /// Functions ///
 /// Can use space bar to end/continue turn
 const spaceBar = (event) => {
@@ -560,8 +561,8 @@ const resetTackleRolls = () => {
   hasPlayer2Rolled = false
 }
 const resetRollText = () => {
-  rollAmount1.innerText = 00
-  rollAmount2.innerText = 00
+  rollAmount1.innerText = 0
+  rollAmount2.innerText = 0
 }
 // Throws to handle move after controlling player wins a tackle
 const continueMove = () => {
@@ -622,7 +623,7 @@ const handleAftermath = (location) => {
     // const fumbleArray = fumbleRadiusOfPosition(location)
     // fumble(fumbleArray)
     // isBallInvolvedInTackle = false
-    instructions.innerText = `The controlling player was destroyed and the ball was fumbled to a random square. Press [End Turn] button to end turn...`
+    instructions.innerText = `The controlling player was destroyed and the ball was fumbled to a random square.\nPress [End Turn] or [Space] to end turn...`
   }
   instructionsColors()
   // instructions.innerText = `The player was destroyed. Press [End Turn] button to end turn...`
@@ -634,7 +635,7 @@ const handleAftermathControllerWins = (location) => {
 
   endTurnButton.removeEventListener('click', endTurn)
   instructionsColors()
-  instructions.innerText = `The controlling player survived the tackle. Press [CONTINUE] button to continue turn...`
+  instructions.innerText = `The controlling player survived the tackle.\nPress [CONTINUE] or [Space] to continue turn...`
   endTurnButton.innerText = 'CONTINUE'
   endTurnButton.addEventListener('click', continueMove)
 }
@@ -842,7 +843,7 @@ const handleMove = () => {
     endTurnButton.addEventListener('click', endTurn)
   } else {
     instructionsColors()
-    instructions.innerText = `You have ${currentMovesLeft} moves left. Make your move or press the [End Turn] button to end turn...`
+    instructions.innerText = `You have ${currentMovesLeft} moves left.\nMake your move, or press [End Turn] or [Space] to end turn...`
     endTurnButton.addEventListener('click', endTurn)
     let movesAvailableArray = updateMovesAvailableArray(squareLocation)
     moveRadiusToBeRemoved = movesAvailableArray
